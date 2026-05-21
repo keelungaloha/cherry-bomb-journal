@@ -383,9 +383,14 @@ window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]');
 
 function init(){
   const now=new Date();
-  document.getElementById('fill-date').value=now.toISOString().split('T')[0];
-  document.getElementById('rec-date').value=new Date(now-86400000).toISOString().split('T')[0];
-  document.getElementById('hdate').textContent=now.toLocaleDateString('zh-TW',{month:'long',day:'numeric',weekday:'short'});
+  const todayStr=now.toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei'}).replace(/\//g,'-').split('-').map((v,i)=>i===0?v:v.padStart(2,'0')).join('-');
+  const ydDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1);
+  const ydStr=ydDate.toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei'}).replace(/\//g,'-').split('-').map((v,i)=>i===0?v:v.padStart(2,'0')).join('-');
+  document.getElementById('fill-date').value=now.toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+  document.getElementById('rec-date').value=ydDate.toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+  document.getElementById('hdate').textContent=now.toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei',month:'long',day:'numeric',weekday:'short'});
+  const msUntilMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+  setTimeout(()=>location.reload(),msUntilMidnight);
   setupPills();setupStars();setupEtags();setupAlPills();setupMjPills();setupWtPills();
   document.getElementById('s-start').addEventListener('input',calcSleep);
   document.getElementById('s-end').addEventListener('input',calcSleep);
