@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0058)file:///C:/Users/user/Downloads/cherry_bomb_journal_2.html -->
+<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🍒💣 櫻桃炸彈日誌</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="./🍒💣 櫻桃炸彈日誌_files/css2" rel="stylesheet">
+<script src="./🍒💣 櫻桃炸彈日誌_files/chart.umd.min.js.下載"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--red:#9E4638;--bg:#FAEEE4;--card:#fff;--soft:#fdf0ec;--muted:#b07a72;--text:#3d1f1a;--border:#e8cfc8}
@@ -104,7 +104,7 @@ textarea{resize:none;height:65px;line-height:1.5}
     <span style="font-size:26px">🍒💣</span>
     <div>
       <h1>櫻桃炸彈日誌</h1>
-      <div class="sub" id="hdate"></div>
+      <div class="sub" id="hdate">5月22日週五</div>
     </div>
   </div>
 </div>
@@ -124,7 +124,7 @@ textarea{resize:none;height:65px;line-height:1.5}
   <div class="sec-hd">⏰ 時間設定</div>
   <div class="sec-bd">
     <div class="row2">
-      <div class="field"><label>填表日</label><input type="text" id="fill-date" readonly style="background:#f5ece8;color:var(--muted)"></div>
+      <div class="field"><label>填表日</label><input type="text" id="fill-date" readonly="" style="background:#f5ece8;color:var(--muted)"></div>
       <div class="field"><label>紀錄日（預設昨天）</label><input type="date" id="rec-date"></div>
     </div>
   </div>
@@ -134,7 +134,7 @@ textarea{resize:none;height:65px;line-height:1.5}
   <div class="sec-hd">⚡ 即時計算</div>
   <div class="sec-bd">
     <div class="calc-grid">
-      <div class="calc-box"><div class="calc-lbl">💉 藥物濃度</div><div class="calc-val" id="pk-v">—</div><div class="calc-sub" id="pk-s">輸入注射紀錄</div></div>
+      <div class="calc-box"><div class="calc-lbl">💉 藥物濃度</div><div class="calc-val" id="pk-v" style="color: rgb(192, 57, 43);">0.00 mg</div><div class="calc-sub" id="pk-s">⚠️ 低於防線 0.7mg</div></div>
       <div class="calc-box"><div class="calc-lbl">💧 水腫率</div><div class="calc-val" id="ed-v">—</div><div class="calc-sub">ECW/TBW</div></div>
       <div class="calc-box"><div class="calc-lbl">😴 睡眠時數</div><div class="calc-val" id="sl-v">—</div><div class="calc-sub">小時</div></div>
     </div>
@@ -355,7 +355,7 @@ textarea{resize:none;height:65px;line-height:1.5}
 </div>
 
 <div class="section">
-  <div class="sec-hd toggle" onclick="toggleSec('history','hi')">
+  <div class="sec-hd toggle" onclick="toggleSec(&#39;history&#39;,&#39;hi&#39;)">
     📋 病史與關鍵數據 <span id="hi">▼</span>
   </div>
   <div class="sec-bd toggle-content" id="history">
@@ -619,14 +619,22 @@ function doSubmit(){
   const idx=records.findIndex(r=>r.date===rd);
   if(idx>=0)records[idx]=record;else records.push(record);
   localStorage.setItem('cbj_records',JSON.stringify(records));
-  alert('🍒💣 紀錄已儲存！');
+  // Write to Google Sheets
+  sheetsAppend(record).then(function(ok){
+    if(ok){
+      alert('🍒💣 紀錄已儲存！\n✅ 已同步到 Google Sheets');
+    } else {
+      alert('🍒💣 紀錄已儲存到本地！\n⚠️ Sheets 同步失敗（請確認已授權）');
+    }
+  });
 }
 
 window.addEventListener('load',init);
 
 // ── Google Calendar API ──
 const GCAL_CLIENT_ID='480950335699-p4ffnr674aniaajg8aunmhshttk10avb.apps.googleusercontent.com';
-const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
+const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/spreadsheets';
+const SHEETS_ID='1FiKKwxMUsOukgKj4GOvL_7Kkljf9sea_9lKAdJzaoHY';
 let gcalToken=null;
 let gcalParsed={kcal:null,p:null,c:null,f:null,detail:''};
 
@@ -660,6 +668,7 @@ function applyGcalAuthed(){
   document.getElementById('gcal-status').style.color='#2e7d52';
   document.getElementById('gcal-auth-btn').style.display='none';
   document.getElementById('gcal-fetch-btn').style.display='inline-block';
+  sheetsInit();
 }
 
 async function gcalFetch(){
@@ -709,6 +718,90 @@ function gcalApply(){
   if(gcalParsed.detail)document.getElementById('food-detail').value=gcalParsed.detail;
   document.getElementById('gcal-result').style.display='none';
   document.getElementById('gcal-status').textContent='已套用！';
+}
+
+
+// ── Google Sheets API ──
+const SHEET_HEADERS = ['日期','體重','骨骼肌','體脂肪','內臟脂肪','細胞內水','細胞外水','睡眠時數','睡眠品質','體態感受','熱量','蛋白質P','碳水C','脂肪F','食慾','運動類型','訓練體感','日曬','猛健樂(mg)','藥物濃度','生理期狀態','過敏狀況','用藥','水腫率','心情備註','身體備註'];
+
+async function sheetsInit(){
+  if(!gcalToken) return;
+  try{
+    // Check if header row exists
+    const res = await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A1:Z1',
+      {headers:{Authorization:'Bearer '+gcalToken}}
+    );
+    const data = await res.json();
+    const existing = data.values && data.values[0];
+    if(!existing || existing.length === 0){
+      // Write headers
+      await fetch(
+        'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A1:Z1?valueInputOption=RAW',
+        {
+          method:'PUT',
+          headers:{Authorization:'Bearer '+gcalToken,'Content-Type':'application/json'},
+          body:JSON.stringify({values:[SHEET_HEADERS]})
+        }
+      );
+      console.log('Headers written to Sheets');
+    }
+  }catch(e){console.log('Sheets init error:',e.message);}
+}
+
+async function sheetsAppend(record){
+  if(!gcalToken){
+    console.log('No token for Sheets');
+    return false;
+  }
+  const row = [
+    record.date||'',
+    record.weight||'',
+    record.muscle||'',
+    record.fat||'',
+    record.visceral||'',
+    record.icw||'',
+    record.ecw||'',
+    record.sleepHrs||'',
+    record.sleepQuality||'',
+    record.bodyFeel||'',
+    record.kcal||'',
+    record.macroP||'',
+    record.macroC||'',
+    record.macroF||'',
+    record.appetite||'',
+    record.workoutType||'',
+    record.workoutStars||'',
+    record.sun||'',
+    record.mounjaro||0,
+    record.pkConc||'',
+    record.period||'',
+    record.allergy||'',
+    record.allergyMed||'',
+    record.edemaRate||'',
+    record.moodNote||'',
+    record.bodyNote||''
+  ];
+  try{
+    const res = await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A:Z:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS',
+      {
+        method:'POST',
+        headers:{Authorization:'Bearer '+gcalToken,'Content-Type':'application/json'},
+        body:JSON.stringify({values:[row]})
+      }
+    );
+    const data = await res.json();
+    if(data.updates){
+      console.log('Sheets: row written successfully');
+      return true;
+    }
+    console.log('Sheets error:', JSON.stringify(data));
+    return false;
+  }catch(e){
+    console.log('Sheets write error:',e.message);
+    return false;
+  }
 }
 
 gcalCheckToken();
@@ -918,12 +1011,12 @@ function injectHistory(){
   </div>
   <div style="margin:10px 14px 0">
     <div class="range-row" id="range-btns">
-      <button class="range-btn active" onclick="setRange('7d',this)">1週</button>
-      <button class="range-btn" onclick="setRange('30d',this)">1個月</button>
-      <button class="range-btn" onclick="setRange('60d',this)">2個月</button>
-      <button class="range-btn" onclick="setRange('90d',this)">3個月</button>
-      <button class="range-btn" onclick="setRange('all',this)">全部</button>
-      <button class="range-btn" onclick="setRange('custom',this)">自訂</button>
+      <button class="range-btn active" onclick="setRange(&#39;7d&#39;,this)">1週</button>
+      <button class="range-btn" onclick="setRange(&#39;30d&#39;,this)">1個月</button>
+      <button class="range-btn" onclick="setRange(&#39;60d&#39;,this)">2個月</button>
+      <button class="range-btn" onclick="setRange(&#39;90d&#39;,this)">3個月</button>
+      <button class="range-btn" onclick="setRange(&#39;all&#39;,this)">全部</button>
+      <button class="range-btn" onclick="setRange(&#39;custom&#39;,this)">自訂</button>
     </div>
     <div class="custom-range" id="custom-range" style="display:none">
       <input type="date" id="range-start" onchange="renderCharts()">
@@ -933,12 +1026,12 @@ function injectHistory(){
   </div>
   <div style="margin:8px 14px 0">
     <div class="chart-tabs" id="chart-tabs">
-      <button class="chart-tab active" onclick="setChartCat('body',this)">📊 身體組成</button>
-      <button class="chart-tab" onclick="setChartCat('drug',this)">💉 藥物</button>
-      <button class="chart-tab" onclick="setChartCat('sleep',this)">😴 睡眠</button>
-      <button class="chart-tab" onclick="setChartCat('diet',this)">🍽️ 飲食</button>
-      <button class="chart-tab" onclick="setChartCat('train',this)">🏋️ 訓練</button>
-      <button class="chart-tab" onclick="setChartCat('allergy',this)">🤧 過敏</button>
+      <button class="chart-tab active" onclick="setChartCat(&#39;body&#39;,this)">📊 身體組成</button>
+      <button class="chart-tab" onclick="setChartCat(&#39;drug&#39;,this)">💉 藥物</button>
+      <button class="chart-tab" onclick="setChartCat(&#39;sleep&#39;,this)">😴 睡眠</button>
+      <button class="chart-tab" onclick="setChartCat(&#39;diet&#39;,this)">🍽️ 飲食</button>
+      <button class="chart-tab" onclick="setChartCat(&#39;train&#39;,this)">🏋️ 訓練</button>
+      <button class="chart-tab" onclick="setChartCat(&#39;allergy&#39;,this)">🤧 過敏</button>
     </div>
   </div>
   <div id="charts-container" style="padding-bottom:20px"></div>
@@ -985,10 +1078,11 @@ function injectHistory(){
 </div>
 
 <div class="bottom-nav" style="max-width:480px;left:50%;transform:translateX(-50%)">
-  <button class="nav-btn active" id="nav-form" onclick="switchPage('form')"><span class="nav-icon">📝</span>填表</button>
-  <button class="nav-btn" id="nav-chart" onclick="switchPage('chart')"><span class="nav-icon">📊</span>趨勢</button>
-  <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="nav-icon">📋</span>病史</button>
+  <button class="nav-btn active" id="nav-form" onclick="switchPage(&#39;form&#39;)"><span class="nav-icon">📝</span>填表</button>
+  <button class="nav-btn" id="nav-chart" onclick="switchPage(&#39;chart&#39;)"><span class="nav-icon">📊</span>趨勢</button>
+  <button class="nav-btn" id="nav-history" onclick="switchPage(&#39;history&#39;)"><span class="nav-icon">📋</span>病史</button>
 </div>
 
-</body>
-</html>
+
+
+</body></html>
