@@ -180,7 +180,7 @@ textarea{resize:none;height:65px;line-height:1.5}
         <button class="pill">☀️ 充足（30分鐘以上）</button>
         <button class="pill">🌤️ 普通（10-30分鐘）</button>
         <button class="pill">⛅ 有出門短暫曬到</button>
-        <button class="pill">☁️ 有出門但沒有曬到</button>
+        <button class="pill">☁️ 有出門沒有曬到</button>
         <button class="pill">🌙 完全室內</button>
       </div>
     </div>
@@ -954,6 +954,12 @@ function renderCharts(){
     <div class="lab-row"><span class="ln">三酸甘油酯</span><span class="lv g">48 mg/dL ✓</span></div>
     <div class="lab-row"><span class="ln">eGFR</span><span class="lv w">87（Stage 2，監測中）</span></div>
     <div class="lab-row"><span class="ln">Anti-TPO</span><span class="lv g">15.2 ✓</span></div>
+
+  <div style="margin-top:16px">
+    <button onclick="injectHistory()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;width:100%">🍒 注入 172 筆歷史資料</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">點一下即可將 2025/10 - 2026/05 的歷史資料匯入趨勢圖</div>
+    <div id="inject-status" style="font-size:12px;color:#2e7d52;margin-top:6px;text-align:center"></div>
+  </div>
   </div>
 </div>
 </div>
