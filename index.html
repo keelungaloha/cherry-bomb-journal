@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍒💣 櫻桃炸彈日誌</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#9E4638;--bg:#FAEEE4;--card:#fff;--soft:#fdf0ec;--muted:#b07a72;--text:#3d1f1a;--border:#e8cfc8}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);padding-bottom:80px}
+.app{max-width:480px;margin:0 auto}
+.header{background:var(--red);padding:16px 20px 12px;position:sticky;top:0;z-index:10}
+.header-top{display:flex;align-items:center;gap:10px}
+.header h1{font-size:19px;font-weight:500;color:#FAEEE4}
+.header .sub{font-size:11px;color:rgba(250,238,228,0.7);margin-top:2px}
+.cycle-banner{margin:10px 14px 0;background:var(--card);border-radius:14px;padding:11px 14px;border-left:4px solid var(--red)}
+.phase{font-size:14px;font-weight:500;color:var(--red)}
+.tip{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+.carb-banner{margin:8px 14px 0;background:var(--card);border-radius:14px;padding:11px 14px;display:none}
+.carb-title{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:6px;letter-spacing:0.5px}
+.carb-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.carb-pill{border-radius:20px;padding:5px 11px;font-size:12px;font-weight:500}
+.carb-high{background:#fff0f0;color:#c0392b;border:1.5px solid #f5c6c0}
+.carb-mid{background:#fffbe6;color:#b7860a;border:1.5px solid #f5e6a0}
+.carb-low{background:#f0fff4;color:#2e7d52;border:1.5px solid #a8dbb8}
+.carb-nums{font-size:11px;color:var(--muted)}
+.section{margin:8px 14px 0;background:var(--card);border-radius:14px;overflow:hidden}
+.sec-hd{background:var(--red);color:#FAEEE4;font-size:11px;font-weight:500;padding:7px 14px;letter-spacing:0.8px}
+.sec-hd.toggle{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.sec-bd{padding:13px}
+.toggle-content{display:none}
+.toggle-content.open{display:block}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-size:11px;color:var(--red);font-weight:500;display:block;margin-bottom:5px}
+input[type=text],input[type=number],input[type=date],input[type=time],textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:15px;color:var(--text);background:#fffaf8;outline:none;font-family:inherit}
+input:focus,textarea:focus{border-color:var(--red)}
+textarea{resize:none;height:65px;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1.5px solid var(--border);border-radius:20px;padding:7px 12px;font-size:13px;color:var(--muted);background:#fffaf8;cursor:pointer;font-family:inherit;line-height:1.3;transition:all 0.15s}
+.pill.active{background:var(--red);border-color:var(--red);color:#fff}
+.pill.multi{border-radius:10px}
+.stars{display:flex;gap:7px;align-items:center}
+.star{font-size:26px;cursor:pointer;color:var(--border);transition:color 0.1s;line-height:1;user-select:none}
+.star.on{color:var(--red)}
+.star-hint{font-size:11px;color:var(--muted);margin-left:6px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.calc-box{background:var(--soft);border-radius:10px;padding:9px 10px}
+.calc-lbl{font-size:10px;color:var(--red);font-weight:500;margin-bottom:3px}
+.calc-val{font-size:17px;font-weight:500;color:var(--red)}
+.calc-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.event-tags{display:flex;flex-wrap:wrap;gap:6px}
+.etag{border:1.5px dashed var(--border);border-radius:20px;padding:5px 11px;font-size:12px;color:var(--muted);background:#fffaf8;cursor:pointer;font-family:inherit}
+.etag.active{background:var(--soft);border-color:var(--red);color:var(--red);border-style:solid}
+.submit-btn{width:calc(100% - 28px);margin:14px 14px 0;background:var(--red);color:#FAEEE4;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:500;cursor:pointer;font-family:inherit}
+.tl-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.tl-item:last-child{border-bottom:none}
+.tl-date{font-size:11px;color:var(--muted);min-width:72px;padding-top:1px}
+.tl-body{font-size:13px;color:var(--text);line-height:1.5}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;margin-bottom:3px;font-weight:500}
+.b-red{background:#fff0f0;color:#c0392b}
+.b-blue{background:#eef4ff;color:#2563eb}
+.b-green{background:#f0fff4;color:#2e7d52}
+.b-purple{background:#f5f0ff;color:#7c3aed}
+.lab-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+.lab-row:last-child{border-bottom:none}
+.ln{color:var(--muted)}
+.lv{font-weight:500;color:var(--text)}
+.lv.w{color:#c0392b}
+.lv.g{color:#2e7d52}
+.sec-sub{font-size:11px;color:var(--muted);font-weight:500;margin:12px 0 8px;letter-spacing:0.5px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="header-top">
+    <span style="font-size:26px">🍒💣</span>
+    <div>
+      <h1>櫻桃炸彈日誌</h1>
+      <div class="sub" id="hdate"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cycle-banner">
+  <div class="phase" id="cyph">輸入月經日期以顯示週期</div>
+  <div class="tip" id="cypt">請在生理週期欄位填入最近一次月經第一天</div>
+</div>
+
+<div class="carb-banner" id="carb-banner">
+  <div class="carb-title">🥗 今日碳循環目標</div>
+  <div class="carb-row" id="carb-row"></div>
+  <div class="carb-nums" id="carb-nums"></div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">⏰ 時間設定</div>
+  <div class="sec-bd">
+    <div class="row2">
+      <div class="field"><label>填表日</label><input type="text" id="fill-date" readonly style="background:#f5ece8;color:var(--muted)"></div>
+      <div class="field"><label>紀錄日（預設昨天）</label><input type="date" id="rec-date"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">⚡ 即時計算</div>
+  <div class="sec-bd">
+    <div class="calc-grid">
+      <div class="calc-box"><div class="calc-lbl">💉 藥物濃度</div><div class="calc-val" id="pk-v">—</div><div class="calc-sub" id="pk-s">輸入注射紀錄</div></div>
+      <div class="calc-box"><div class="calc-lbl">💧 水腫率</div><div class="calc-val" id="ed-v">—</div><div class="calc-sub">ECW/TBW</div></div>
+      <div class="calc-box"><div class="calc-lbl">😴 睡眠時數</div><div class="calc-val" id="sl-v">—</div><div class="calc-sub">小時</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">😴 睡眠</div>
+  <div class="sec-bd">
+    <div class="row2">
+      <div class="field"><label>入睡時間</label><input type="time" id="s-start"></div>
+      <div class="field"><label>起床時間</label><input type="time" id="s-end"></div>
+    </div>
+    <div class="field">
+      <label>睡眠品質</label>
+      <div class="stars" id="sq">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        <span class="star-hint" id="sq-h">—</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>睡眠干擾（可複選）</label>
+      <div class="pills">
+        <button class="pill multi">✅ 一覺到天亮</button>
+        <button class="pill multi">🧩 碎片淺眠</button>
+        <button class="pill multi">😰 焦慮停不下來</button>
+        <button class="pill multi">🤩 興奮期待</button>
+        <button class="pill multi">🥵 身體燥熱</button>
+        <button class="pill multi">💧 太濕/身體黏</button>
+        <button class="pill multi">🥶 太冷</button>
+        <button class="pill multi">🌡️ 溫度不對</button>
+        <button class="pill multi">🤧 鼻塞/過敏</button>
+        <button class="pill multi">💪 肌肉痠痛</button>
+        <button class="pill multi">🚽 頻尿</button>
+        <button class="pill multi">📱 滑手機太晚</button>
+        <button class="pill multi">🔊 外部噪音</button>
+        <button class="pill multi">🦟 蚊子</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>昨日日曬 ☀️（影響睡眠品質）</label>
+      <div class="pills" id="sun">
+        <button class="pill">☀️ 充足（30分鐘以上）</button>
+        <button class="pill">🌤️ 普通（10-30分鐘）</button>
+        <button class="pill">⛅ 短暫曬到</button>
+        <button class="pill active">☁️ 沒有日曬</button>
+        <button class="pill">🌙 完全室內</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">⚖️ 身體數據</div>
+  <div class="sec-bd">
+    <div class="row3">
+      <div class="field"><label>體重 kg</label><input type="number" step="0.05" id="wt"></div>
+      <div class="field"><label>骨骼肌 kg</label><input type="number" step="0.1" id="mu"></div>
+      <div class="field"><label>體脂肪 kg</label><input type="number" step="0.1" id="fa"></div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>內臟脂肪</label><input type="number" step="1" id="vi"></div>
+      <div class="field"><label>細胞內水 kg</label><input type="number" step="0.1" id="icw"></div>
+      <div class="field"><label>細胞外水 kg</label><input type="number" step="0.1" id="ecw"></div>
+    </div>
+    <div class="field">
+      <label>體態感受 🪞</label>
+      <div class="stars" id="bf">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        <span class="star-hint" id="bf-h">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">💉 猛健樂</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>今日注射劑量</label>
+      <div class="pills" id="mj">
+        <button class="pill active">☁️ 無</button>
+        <button class="pill">💉 0.5 mg</button>
+        <button class="pill">💉 0.667 mg</button>
+        <button class="pill">💉 0.75 mg</button>
+        <button class="pill">💉 1 mg</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">🩸 生理週期</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>今日狀態</label>
+      <div class="pills" id="pe">
+        <button class="pill active">☁️ 平日</button>
+        <button class="pill">🩸 生理期</button>
+      </div>
+    </div>
+    <div class="field"><label>最近一次月經第一天</label><input type="date" id="lmp"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">🍽️ 飲食</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>從 Google 行事曆抓取 📅</label>
+      <div id="gcal-status" style="font-size:12px;color:var(--muted);margin-bottom:8px">尚未授權</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="gcal-auth-btn" onclick="gcalAuth()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit">🔑 授權 Google 帳號</button>
+        <button id="gcal-fetch-btn" onclick="gcalFetch()" style="background:var(--soft);color:var(--red);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:none">📅 抓取昨日飲食</button>
+      </div>
+    </div>
+    <div id="gcal-result" style="display:none" class="field">
+      <label>抓取結果</label>
+      <div id="gcal-event-title" style="font-size:13px;color:var(--text);background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:8px;line-height:1.6"></div>
+      <button onclick="gcalApply()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit">✅ 套用到表單</button>
+    </div>
+    <div class="field"><label>熱量 kcal</label><input type="number" id="cal" placeholder="1800"></div>
+    <div class="row3">
+      <div class="field"><label>蛋白質 P (g)</label><input type="number" id="macro-p" placeholder="120"></div>
+      <div class="field"><label>碳水 C (g)</label><input type="number" id="macro-c" placeholder="175"></div>
+      <div class="field"><label>脂肪 F (g)</label><input type="number" id="macro-f" placeholder="50"></div>
+    </div>
+    <div class="field"><label>飲食明細</label><textarea id="food-detail" placeholder="從行事曆自動填入，或手動輸入..." style="height:80px"></textarea></div>
+    <div class="field">
+      <label>食慾狀態</label>
+      <div class="pills" id="ap">
+        <button class="pill">🧋 愛喝甜飲/碳水</button>
+        <button class="pill">😊 正常吃飽就停</button>
+        <button class="pill">🍉 餓但會飽</button>
+        <button class="pill">🥭 餓且吃不飽</button>
+        <button class="pill">😶 完全沒食慾</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">🏋️ 運動</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>運動類型</label>
+      <div class="pills" id="wt-type">
+        <button class="pill">🦵 硬舉日</button>
+        <button class="pill">🏋️ 深蹲日</button>
+        <button class="pill">💪 上肢日</button>
+        <button class="pill active">🛋️ 休息日</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>運動表現體感（可複選）</label>
+      <div class="pills">
+        <button class="pill multi">🔥 破PR</button>
+        <button class="pill multi">💪 正常發揮</button>
+        <button class="pill multi">😮‍💨 很喘吃力</button>
+        <button class="pill multi">⚡ 左右不均</button>
+        <button class="pill multi">🫠 虛弱勉強</button>
+        <button class="pill multi">😴 超級痠痛</button>
+        <button class="pill multi">🤧 不舒服硬撐</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>訓練體感 ⭐（1顆=很糟，5顆=超爽破PR）</label>
+      <div class="stars" id="ws">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        <span class="star-hint" id="ws-h">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">🤧 過敏/身體</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>今日狀況</label>
+      <div class="pills" id="al">
+        <button class="pill active" data-v="無">✅ 無異狀</button>
+        <button class="pill" data-v="前兆">🌀 前兆感</button>
+        <button class="pill" data-v="輕微">😤 輕微發作</button>
+        <button class="pill" data-v="嚴重">🤮 嚴重發作</button>
+        <button class="pill" data-v="嚴重+吐">🤮💦 嚴重+嘔吐</button>
+        <button class="pill" data-v="感冒">🤒 感冒症狀</button>
+      </div>
+    </div>
+    <div id="med-f" style="display:none" class="field">
+      <label>用藥 💊</label>
+      <div class="pills" id="al-med">
+        <button class="pill active">無吃藥</button>
+        <button class="pill">抗組織胺</button>
+        <button class="pill">鼻炎錠</button>
+        <button class="pill">兩種都吃</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">🏷️ 特殊事件</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>今日標籤（可複選）</label>
+      <div class="event-tags">
+        <button class="etag">🩸 抽血日</button>
+        <button class="etag">🦴 量DXA日</button>
+        <button class="etag">📏 量腰臀圍日</button>
+        <button class="etag">🔄 開始碳循環</button>
+        <button class="etag">📉 Deload週</button>
+        <button class="etag">💊 新補充品</button>
+        <button class="etag">🩺 回診日</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd toggle" onclick="toggleSec('history','hi')">
+    📋 病史與關鍵數據 <span id="hi">▼</span>
+  </div>
+  <div class="sec-bd toggle-content" id="history">
+    <div class="sec-sub">健康時間軸</div>
+    <div class="tl-item"><div class="tl-date">2017/03</div><div class="tl-body"><span class="badge b-red">骨科</span><br>確診椎弓斷裂，同年開始健身</div></div>
+    <div class="tl-item"><div class="tl-date">2024/02</div><div class="tl-body"><span class="badge b-purple">婦科</span><br>小產</div></div>
+    <div class="tl-item"><div class="tl-date">2024/09</div><div class="tl-body"><span class="badge b-purple">婦科</span><br>腹腔鏡取子宮肌瘤</div></div>
+    <div class="tl-item"><div class="tl-date">2025/06</div><div class="tl-body"><span class="badge b-blue">體雕</span><br>腹部環形抽脂手術</div></div>
+    <div class="tl-item"><div class="tl-date">2025/09/04</div><div class="tl-body"><span class="badge b-red">代謝</span><br>HOMA-IR 2.3↑，HbA1c 5.0，確認胰島素阻抗</div></div>
+    <div class="tl-item"><div class="tl-date">2025/10/15</div><div class="tl-body"><span class="badge b-green">治療</span><br>開始猛健樂低劑量治療</div></div>
+    <div class="tl-item"><div class="tl-date">2025/10/28</div><div class="tl-body"><span class="badge b-blue">DXA</span><br>體脂率 36.2%・骨密 T-score -0.6（正常）・瘦體組織 33,662g・內臟脂肪 67.6cm²（正常&lt;91）</div></div>
+    <div class="tl-item"><div class="tl-date">2025/11/26</div><div class="tl-body"><span class="badge b-green">代謝</span><br>HOMA-IR 1.0（藥物作用期間，參考性有限）</div></div>
+    <div class="tl-item"><div class="tl-date">2026/01</div><div class="tl-body"><span class="badge b-green">訓練</span><br>開始增肌期，均熱量 1700–1800 kcal</div></div>
+    <div class="tl-item"><div class="tl-date">2026/03/16</div><div class="tl-body"><span class="badge b-red">代謝</span><br>HOMA-IR 1.7（改善中）・LDL 131↑・eGFR 87（監測中）・HDL 79（優）</div></div>
+    <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
+    <div class="sec-sub">最新血檢（2026/03/16）</div>
+    <div class="lab-row"><span class="ln">飯前血糖</span><span class="lv">95 mg/dL</span></div>
+    <div class="lab-row"><span class="ln">HOMA-IR</span><span class="lv w">1.7 ↑（早期阻抗）</span></div>
+    <div class="lab-row"><span class="ln">HDL 高密度膽固醇</span><span class="lv g">79 mg/dL ✓</span></div>
+    <div class="lab-row"><span class="ln">LDL 低密度膽固醇</span><span class="lv w">131 mg/dL ↑</span></div>
+    <div class="lab-row"><span class="ln">三酸甘油酯</span><span class="lv g">48 mg/dL ✓</span></div>
+    <div class="lab-row"><span class="ln">eGFR 腎絲球過濾率</span><span class="lv w">87（Stage 2，持續監測）</span></div>
+    <div class="lab-row"><span class="ln">Anti-TPO 甲狀腺抗體</span><span class="lv g">15.2 ✓（正常&lt;34）</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">📝 備註</div>
+  <div class="sec-bd">
+    <div class="field"><label>心情 / 生活 / PR紀錄 🎉</label><textarea id="n-mood" placeholder="今天心情、爆食原因、破PR紀錄..."></textarea></div>
+    <div class="field"><label>身體備註 🫀</label><textarea id="n-body" placeholder="特殊症狀、補充品異常..."></textarea></div>
+  </div>
+</div>
+
+<button class="submit-btn" id="submit-btn">🍒 送出今日紀錄</button>
+</div>
+
+<script>
+const DECAY=0.87;
+const starHints={sq:['','💀 很難受','😞 不太好','😐 普通','😊 還不錯','🌟 超好睡'],bf:['','😞 很腫','😕 有點不滿意','😐 還可以','😊 不錯喔','🔥 線條超好看'],ws:['','💀 快死了','😞 很糟','😐 普通','💪 不錯','🔥 超爽破PR']};
+const carbPlans={
+  fol:{'硬舉':{t:'🔴 高碳',p:120,c:215,f:50,k:1790},'深蹲':{t:'🔴 高碳',p:120,c:215,f:50,k:1790},'上肢':{t:'🟡 中碳',p:120,c:175,f:45,k:1585},'休息':{t:'🟢 低碳',p:120,c:135,f:50,k:1470}},
+  lut:{'硬舉':{t:'🔴 高碳',p:120,c:195,f:75,k:1935},'深蹲':{t:'🔴 高碳',p:120,c:195,f:75,k:1935},'上肢':{t:'🟡 中碳',p:120,c:155,f:75,k:1775},'休息':{t:'🟢 低碳',p:120,c:115,f:75,k:1615}}
+};
+let phaseKey='fol';
+window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]');
+
+function init(){
+  const now=new Date();
+  document.getElementById('fill-date').value=now.toISOString().split('T')[0];
+  document.getElementById('rec-date').value=new Date(now-86400000).toISOString().split('T')[0];
+  document.getElementById('hdate').textContent=now.toLocaleDateString('zh-TW',{month:'long',day:'numeric',weekday:'short'});
+  setupPills();setupStars();setupEtags();setupAlPills();setupMjPills();setupWtPills();
+  document.getElementById('s-start').addEventListener('input',calcSleep);
+  document.getElementById('s-end').addEventListener('input',calcSleep);
+  document.getElementById('icw').addEventListener('input',calcEdema);
+  document.getElementById('ecw').addEventListener('input',calcEdema);
+  document.getElementById('rec-date').addEventListener('change',()=>{calcCycle();calcPK()});
+  document.getElementById('lmp').addEventListener('change',calcCycle);
+  document.getElementById('submit-btn').addEventListener('click',doSubmit);
+  calcPK();
+}
+
+function setupPills(){
+  ['ap','pe','sun'].forEach(id=>{
+    document.getElementById(id).querySelectorAll('.pill').forEach(b=>{
+      b.addEventListener('click',function(){
+        this.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  });
+  document.querySelectorAll('.pills .pill.multi').forEach(b=>{
+    b.addEventListener('click',function(){this.classList.toggle('active')});
+  });
+}
+
+function setupMjPills(){
+  document.getElementById('mj').querySelectorAll('.pill').forEach(b=>{
+    b.addEventListener('click',function(){
+      this.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+      calcPK();
+    });
+  });
+}
+
+function setupWtPills(){
+  document.getElementById('wt-type').querySelectorAll('.pill').forEach(b=>{
+    b.addEventListener('click',function(){
+      this.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+      updateCarb();
+    });
+  });
+}
+
+function setupAlPills(){
+  document.getElementById('al').querySelectorAll('.pill').forEach(b=>{
+    b.addEventListener('click',function(){
+      this.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('med-f').style.display=this.dataset.v==='無'?'none':'block';
+    });
+  });
+  document.getElementById('al-med').querySelectorAll('.pill').forEach(b=>{
+    b.addEventListener('click',function(){
+      this.closest('.pills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+}
+
+function setupStars(){
+  ['sq','bf','ws'].forEach(id=>{
+    document.getElementById(id).querySelectorAll('.star').forEach((s,i)=>{
+      s.addEventListener('click',()=>{
+        const el=document.getElementById(id);
+        el.querySelectorAll('.star').forEach((x,j)=>x.classList.toggle('on',j<=i));
+        el.dataset.value=i+1;
+        const h=document.getElementById(id+'-h');
+        if(h&&starHints[id])h.textContent=starHints[id][i+1]||'';
+      });
+    });
+  });
+}
+
+function setupEtags(){
+  document.querySelectorAll('.etag').forEach(b=>{
+    b.addEventListener('click',function(){this.classList.toggle('active')});
+  });
+}
+
+function calcSleep(){
+  const s=document.getElementById('s-start').value,e=document.getElementById('s-end').value;
+  if(!s||!e)return;
+  let sm=parseInt(s.split(':')[0])*60+parseInt(s.split(':')[1]);
+  let em=parseInt(e.split(':')[0])*60+parseInt(e.split(':')[1]);
+  if(em<sm)em+=1440;
+  document.getElementById('sl-v').textContent=((em-sm)/60).toFixed(1);
+}
+
+function calcEdema(){
+  const i=parseFloat(document.getElementById('icw').value)||0;
+  const e=parseFloat(document.getElementById('ecw').value)||0;
+  if(i+e>0){
+    const r=e/(i+e);
+    const el=document.getElementById('ed-v');
+    el.textContent=r.toFixed(3);
+    el.style.color=r>0.395?'#c0392b':'#2e7d52';
+  }
+}
+
+function calcCycle(){
+  const lmp=document.getElementById('lmp').value;
+  if(!lmp)return;
+  const rd=document.getElementById('rec-date').value||new Date().toISOString().split('T')[0];
+  const day=Math.floor((new Date(rd)-new Date(lmp))/86400000)%27+1;
+  let phase,tip,color,pk;
+  if(day<=5){phase='🩸 生理期 Day '+day;tip='補充足夠碳水，防止能量赤字，保護重訓狀態';color='#c0392b';pk='lut'}
+  else if(day<=13){phase='🌱 濾泡期 Day '+day;tip='雌激素優勢，增肌衝刺好時機！目標濃度 1.2–1.4mg';color='#2e7d52';pk='fol'}
+  else if(day===14){phase='🥚 排卵日 Day 14';tip='注意睡眠可能有興奮型失眠';color='#e67e22';pk='fol'}
+  else if(day<=19){phase='🌕 黃體期 Day '+day;tip='濃度緩降至 1.0mg，開始釋放食慾窗口';color='#7c3aed';pk='lut'}
+  else if(day<=22){phase='🌕⚡ 黃體後期 Day '+day;tip='注意脂肪攝取！多吃好的油脂幫助平穩度過 🧈';color='#e67e22';pk='lut'}
+  else{phase='⚡ 經前期 Day '+day;tip='水腫與燥熱高風險期，確保脂肪與碳水充足，施打間隔可拉長至5天';color='#c0392b';pk='lut'}
+  document.getElementById('cyph').textContent=phase;
+  document.getElementById('cyph').style.color=color;
+  document.getElementById('cypt').textContent=tip;
+  phaseKey=pk;updateCarb();
+}
+
+function updateCarb(){
+  const active=document.querySelector('#wt-type .pill.active');
+  if(!active)return;
+  const txt=active.textContent;
+  const key=Object.keys(carbPlans[phaseKey]).find(k=>txt.includes(k));
+  if(!key){document.getElementById('carb-banner').style.display='none';return}
+  const d=carbPlans[phaseKey][key];
+  const cls=d.t.includes('高碳')?'carb-high':d.t.includes('中碳')?'carb-mid':'carb-low';
+  document.getElementById('carb-row').innerHTML=`<span class="carb-pill ${cls}">${d.t}</span>`;
+  document.getElementById('carb-nums').innerHTML=`蛋白質 ${d.p}g・碳水 ${d.c}g・脂肪 ${d.f}g・目標 <strong>${d.k} kcal</strong>`;
+  document.getElementById('carb-banner').style.display='block';
+}
+
+function calcPK(){
+  const rd=document.getElementById('rec-date')?.value||new Date().toISOString().split('T')[0];
+  const today=new Date(rd);
+  let c=0;
+  window._pkd.forEach(d=>{
+    const da=(today-new Date(d.date))/86400000;
+    if(da>=0&&da<60){c+=d.dose*0.5*Math.pow(DECAY,da);if(da>=1)c+=d.dose*0.5*Math.pow(DECAY,da-1)}
+  });
+  const mjActive=document.querySelector('#mj .pill.active');
+  if(mjActive&&mjActive.textContent!=='☁️ 無'){
+    const nd=parseFloat(mjActive.textContent.replace(/[^0-9.]/g,''));
+    if(nd>0){c+=nd*0.5;c+=nd*0.5*DECAY}
+  }
+  const el=document.getElementById('pk-v'),st=document.getElementById('pk-s');
+  el.textContent=c.toFixed(2)+' mg';
+  if(c<0.7){el.style.color='#c0392b';st.textContent='⚠️ 低於防線 0.7mg'}
+  else if(c>1.5){el.style.color='#c0392b';st.textContent='⚠️ 超過紅線 1.5mg'}
+  else if(c>=0.9&&c<=1.4){el.style.color='#2e7d52';st.textContent='✅ 甜蜜點 0.9–1.4mg'}
+  else{el.style.color='var(--red)';st.textContent='正常範圍'}
+}
+
+function toggleSec(id,iconId){
+  const c=document.getElementById(id);
+  const ic=document.getElementById(iconId);
+  c.classList.toggle('open');
+  ic.textContent=c.classList.contains('open')?'▲':'▼';
+}
+
+function doSubmit(){
+  const mjActive=document.querySelector('#mj .pill.active');
+  const dose=mjActive?.textContent||'';
+  if(dose&&dose!=='☁️ 無'){
+    const d=parseFloat(dose.replace(/[^0-9.]/g,''));
+    if(d>0){
+      const rd=document.getElementById('rec-date').value;
+      window._pkd.push({date:rd,dose:d});
+      window._pkd=window._pkd.filter(x=>(new Date()-new Date(x.date))/86400000<60);
+      localStorage.setItem('pkd',JSON.stringify(window._pkd));
+    }
+  }
+  alert('🍒💣 今日紀錄已儲存！\n串接 Google Sheets 功能即將上線');
+}
+
+window.addEventListener('load',init);
+
+// ── Google Calendar API ──
+const GCAL_CLIENT_ID='480950335699-p4ffnr674aniaajg8aunmhshttk10avb.apps.googleusercontent.com';
+const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
+let gcalToken=null;
+let gcalParsed={kcal:null,p:null,c:null,f:null,detail:''};
+
+function gcalAuth(){
+  const url='https://accounts.google.com/o/oauth2/v2/auth'
+    +'?client_id='+GCAL_CLIENT_ID
+    +'&redirect_uri='+encodeURIComponent(location.href.split('?')[0])
+    +'&response_type=token'
+    +'&scope='+encodeURIComponent(GCAL_SCOPE)
+    +'&prompt=consent';
+  window.location.href=url;
+}
+
+function gcalCheckToken(){
+  const hash=window.location.hash;
+  if(hash&&hash.includes('access_token')){
+    const params=new URLSearchParams(hash.replace('#',''));
+    gcalToken=params.get('access_token');
+    window.history.replaceState(null,null,location.pathname);
+    applyGcalAuthed();
+  }
+  if(!gcalToken){
+    const saved=localStorage.getItem('gcal_token');
+    if(saved){gcalToken=saved;applyGcalAuthed();}
+  }
+  if(gcalToken)localStorage.setItem('gcal_token',gcalToken);
+}
+
+function applyGcalAuthed(){
+  document.getElementById('gcal-status').textContent='已授權';
+  document.getElementById('gcal-status').style.color='#2e7d52';
+  document.getElementById('gcal-auth-btn').style.display='none';
+  document.getElementById('gcal-fetch-btn').style.display='inline-block';
+}
+
+async function gcalFetch(){
+  if(!gcalToken){alert('請先授權');return;}
+  const recDate=document.getElementById('rec-date').value;
+  if(!recDate){alert('請先設定紀錄日');return;}
+  const d=new Date(recDate);
+  const tMin=d.toISOString();
+  const tMax=new Date(d.getTime()+86400000).toISOString();
+  document.getElementById('gcal-status').textContent='抓取中...';
+  try{
+    const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+tMin+'&timeMax='+tMax+'&singleEvents=true&orderBy=startTime',{headers:{Authorization:'Bearer '+gcalToken}});
+    if(res.status===401){
+      gcalToken=null;localStorage.removeItem('gcal_token');
+      document.getElementById('gcal-status').textContent='授權過期，請重新授權';
+      document.getElementById('gcal-auth-btn').style.display='inline-block';
+      document.getElementById('gcal-fetch-btn').style.display='none';
+      return;
+    }
+    const data=await res.json();
+    const events=data.items||[];
+    const dietEvent=events.find(function(e){
+      const t=(e.summary||'')+(e.description||'');
+      return /kcal|大卡|熱量|蛋白質|P:|C:|F:/.test(t);
+    });
+    if(!dietEvent){document.getElementById('gcal-status').textContent='找不到飲食行程';return;}
+    const title=dietEvent.summary||'';
+    const desc=dietEvent.description||'';
+    const full=title+' '+desc;
+    const kcalM=full.match(/(\d{3,4})\s*kcal/i)||full.match(/(\d{3,4})\s*大卡/);
+    const pM=full.match(/P[：:]\s*(\d+)\s*g/i);
+    const cM=full.match(/C[：:]\s*(\d+)\s*g/i);
+    const fM=full.match(/F[：:]\s*(\d+)\s*g/i);
+    gcalParsed={kcal:kcalM?kcalM[1]:null,p:pM?pM[1]:null,c:cM?cM[1]:null,f:fM?fM[1]:null,detail:desc||title};
+    document.getElementById('gcal-event-title').textContent=title+(desc?('\n'+desc.substring(0,300)):'');
+    document.getElementById('gcal-result').style.display='block';
+    document.getElementById('gcal-status').textContent='找到飲食行程！';
+    document.getElementById('gcal-status').style.color='#2e7d52';
+  }catch(err){document.getElementById('gcal-status').textContent='失敗：'+err.message;}
+}
+
+function gcalApply(){
+  if(gcalParsed.kcal)document.getElementById('cal').value=gcalParsed.kcal;
+  if(gcalParsed.p)document.getElementById('macro-p').value=gcalParsed.p;
+  if(gcalParsed.c)document.getElementById('macro-c').value=gcalParsed.c;
+  if(gcalParsed.f)document.getElementById('macro-f').value=gcalParsed.f;
+  if(gcalParsed.detail)document.getElementById('food-detail').value=gcalParsed.detail;
+  document.getElementById('gcal-result').style.display='none';
+  document.getElementById('gcal-status').textContent='已套用！';
+}
+
+gcalCheckToken();
+
+</script>
+</body>
+</html>
