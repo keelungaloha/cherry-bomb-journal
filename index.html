@@ -5,10 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🍒💣 櫻桃炸彈日誌</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--red:#9E4638;--bg:#FAEEE4;--card:#fff;--soft:#fdf0ec;--muted:#b07a72;--text:#3d1f1a;--border:#e8cfc8}
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);padding-bottom:80px}
+.page{display:none}.page.active{display:block}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:20;max-width:480px;margin:0 auto}
+.nav-btn{flex:1;padding:10px 0 8px;border:none;background:none;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:500}
+.nav-btn.active{color:var(--red)}
+.nav-icon{font-size:20px;line-height:1}
+.chart-section{margin:8px 14px 0;background:#fff;border-radius:14px;overflow:hidden}
+.chart-hd{background:var(--red);color:#FAEEE4;font-size:11px;font-weight:500;padding:7px 14px;letter-spacing:0.8px}
+.chart-bd{padding:13px}
+.chart-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chart-tab{border:1.5px solid var(--border);border-radius:20px;padding:5px 11px;font-size:12px;color:var(--muted);background:#fffaf8;cursor:pointer;font-family:inherit}
+.chart-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+.range-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.range-btn{border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;font-size:12px;color:var(--muted);background:#fffaf8;cursor:pointer;font-family:inherit}
+.range-btn.active{background:var(--soft);border-color:var(--red);color:var(--red)}
+.custom-range{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.custom-range input{border:1.5px solid var(--border);border-radius:10px;padding:7px 10px;font-size:13px;color:var(--text);background:#fffaf8;outline:none;font-family:inherit;width:140px}
+.custom-range input:focus{border-color:var(--red)}
+.chart-wrap{position:relative;height:220px;margin-bottom:16px}
+.chart-wrap canvas{max-height:220px}
+.no-data{text-align:center;color:var(--muted);font-size:13px;padding:40px 0}
 .app{max-width:480px;margin:0 auto}
 .header{background:var(--red);padding:16px 20px 12px;position:sticky;top:0;z-index:10}
 .header-top{display:flex;align-items:center;gap:10px}
@@ -75,6 +96,7 @@ textarea{resize:none;height:65px;line-height:1.5}
 </style>
 </head>
 <body>
+<div id="page-form" class="page active">
 <div class="app">
 
 <div class="header">
@@ -370,6 +392,7 @@ textarea{resize:none;height:65px;line-height:1.5}
 
 <button class="submit-btn" id="submit-btn">🍒 送出今日紀錄</button>
 </div>
+</div>
 
 <script>
 const DECAY=0.87;
@@ -554,16 +577,49 @@ function toggleSec(id,iconId){
 function doSubmit(){
   const mjActive=document.querySelector('#mj .pill.active');
   const dose=mjActive?.textContent||'';
+  let doseNum=0;
   if(dose&&dose!=='☁️ 無'){
-    const d=parseFloat(dose.replace(/[^0-9.]/g,''));
-    if(d>0){
+    doseNum=parseFloat(dose.replace(/[^0-9.]/g,''));
+    if(doseNum>0){
       const rd=document.getElementById('rec-date').value;
-      window._pkd.push({date:rd,dose:d});
+      window._pkd.push({date:rd,dose:doseNum});
       window._pkd=window._pkd.filter(x=>(new Date()-new Date(x.date))/86400000<60);
       localStorage.setItem('pkd',JSON.stringify(window._pkd));
     }
   }
-  alert('🍒💣 今日紀錄已儲存！\n串接 Google Sheets 功能即將上線');
+  const rd=document.getElementById('rec-date').value;
+  const pkVal=parseFloat(document.getElementById('pk-v').textContent)||0;
+  const slHrs=parseFloat(document.getElementById('sl-v').textContent)||null;
+  const record={
+    date:rd,
+    weight:parseFloat(document.getElementById('wt').value)||null,
+    muscle:parseFloat(document.getElementById('mu').value)||null,
+    fat:parseFloat(document.getElementById('fa').value)||null,
+    visceral:parseFloat(document.getElementById('vi').value)||null,
+    icw:parseFloat(document.getElementById('icw').value)||null,
+    ecw:parseFloat(document.getElementById('ecw').value)||null,
+    sleepHrs:slHrs,
+    sleepQuality:parseInt(document.getElementById('sq').dataset.value)||null,
+    bodyFeel:parseInt(document.getElementById('bf').dataset.value)||null,
+    workoutStars:parseInt(document.getElementById('ws').dataset.value)||null,
+    kcal:parseFloat(document.getElementById('cal').value)||null,
+    macroP:parseFloat(document.getElementById('macro-p').value)||null,
+    macroC:parseFloat(document.getElementById('macro-c').value)||null,
+    macroF:parseFloat(document.getElementById('macro-f').value)||null,
+    pkConc:pkVal,
+    mounjaro:doseNum||0,
+    sun:document.querySelector('#sun .pill.active')?.textContent||'',
+    allergy:document.querySelector('#al .pill.active')?.dataset.v||'無',
+    period:document.querySelector('#pe .pill.active')?.textContent||'',
+    appetite:document.querySelector('#ap .pill.active')?.textContent||'',
+    moodNote:document.getElementById('n-mood').value||'',
+    bodyNote:document.getElementById('n-body').value||''
+  };
+  const records=JSON.parse(localStorage.getItem('cbj_records')||'[]');
+  const idx=records.findIndex(r=>r.date===rd);
+  if(idx>=0)records[idx]=record;else records.push(record);
+  localStorage.setItem('cbj_records',JSON.stringify(records));
+  alert('🍒💣 紀錄已儲存！');
 }
 
 window.addEventListener('load',init);
@@ -657,6 +713,256 @@ function gcalApply(){
 
 gcalCheckToken();
 
+
+// ── Navigation ──
+function switchPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  if(page==='chart')renderCharts();
+}
+
+// ── Chart logic ──
+let currentCat='body';
+let currentRange='7d';
+let chartInstances={};
+const RED='#9E4638';
+const RED_LIGHT='rgba(158,70,56,0.15)';
+
+function setChartCat(cat,btn){
+  currentCat=cat;
+  document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCharts();
+}
+
+function setRange(range,btn){
+  currentRange=range;
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('custom-range').style.display=range==='custom'?'flex':'none';
+  if(range!=='custom')renderCharts();
+}
+
+function getFilteredData(){
+  const records=JSON.parse(localStorage.getItem('cbj_records')||'[]');
+  if(!records.length)return[];
+  const now=new Date();
+  let startDate=null,endDate=now;
+  if(currentRange==='7d')startDate=new Date(now-7*86400000);
+  else if(currentRange==='30d')startDate=new Date(now-30*86400000);
+  else if(currentRange==='60d')startDate=new Date(now-60*86400000);
+  else if(currentRange==='90d')startDate=new Date(now-90*86400000);
+  else if(currentRange==='custom'){
+    const s=document.getElementById('range-start').value;
+    const e=document.getElementById('range-end').value;
+    if(s)startDate=new Date(s);
+    if(e)endDate=new Date(e);
+  }
+  return records.filter(r=>{
+    const d=new Date(r.date);
+    if(startDate&&d<startDate)return false;
+    if(d>endDate)return false;
+    return true;
+  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+}
+
+function makeChart(canvasId,label,data,labels,color,min,max,refLines){
+  if(chartInstances[canvasId])chartInstances[canvasId].destroy();
+  const ctx=document.getElementById(canvasId);
+  if(!ctx)return;
+  const datasets=[{
+    label,data,borderColor:color||RED,backgroundColor:RED_LIGHT,
+    borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:0.3,fill:true
+  }];
+  if(refLines){
+    refLines.forEach(r=>{
+      datasets.push({label:r.label,data:labels.map(()=>r.val),borderColor:r.color,borderWidth:1.5,borderDash:[5,5],pointRadius:0,fill:false});
+    });
+  }
+  chartInstances[canvasId]=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:refLines&&refLines.length>0,labels:{font:{size:11},boxWidth:20}}},
+      scales:{
+        x:{ticks:{font:{size:10},maxTicksLimit:8},grid:{color:'rgba(0,0,0,0.05)'}},
+        y:{min,max,ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,0.05)'}}
+      }
+    }
+  });
+}
+
+function makeBarChart(canvasId,label,data,labels,color){
+  if(chartInstances[canvasId])chartInstances[canvasId].destroy();
+  const ctx=document.getElementById(canvasId);
+  if(!ctx)return;
+  chartInstances[canvasId]=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{label,data,backgroundColor:color||RED_LIGHT,borderColor:color||RED,borderWidth:1.5,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:8},grid:{display:false}},y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,0.05)'}}}}
+  });
+}
+
+function chartBlock(id,title){
+  return '<div class="chart-section"><div class="chart-hd">'+title+'</div><div class="chart-bd"><div class="chart-wrap"><canvas id="'+id+'"></canvas></div></div></div>';
+}
+
+function noDataBlock(){
+  return '<div class="chart-section"><div class="chart-bd"><div class="no-data">📭 還沒有資料<br><span style="font-size:11px">填表後資料會出現在這裡</span></div></div></div>';
+}
+
+function renderCharts(){
+  const data=getFilteredData();
+  const container=document.getElementById('charts-container');
+  if(!data.length){container.innerHTML=noDataBlock();return;}
+  const labels=data.map(r=>r.date.slice(5));
+  const algMap={'無異狀':0,'前兆':1,'輕微':2,'嚴重':3,'嚴重+吐':4,'感冒':1};
+
+  if(currentCat==='body'){
+    container.innerHTML=
+      chartBlock('c-weight','體重 (kg)')+
+      chartBlock('c-muscle','骨骼肌 (kg)')+
+      chartBlock('c-fat','體脂率 (%)')+
+      chartBlock('c-visceral','內臟脂肪')+
+      chartBlock('c-edema','水腫率');
+    makeChart('c-weight','體重',data.map(r=>r.weight||null),labels,RED);
+    makeChart('c-muscle','骨骼肌',data.map(r=>r.muscle||null),labels,'#8e44ad');
+    makeChart('c-fat','體脂率',data.map(r=>r.fat&&r.weight?+(r.fat/r.weight*100).toFixed(1):null),labels,'#e67e22');
+    makeChart('c-visceral','內臟脂肪',data.map(r=>r.visceral||null),labels,'#c0392b');
+    makeChart('c-edema','水腫率',data.map(r=>r.ecw&&r.icw?+(r.ecw/(r.icw+r.ecw)).toFixed(3):null),labels,'#2980b9',null,null,[{label:'水腫警戒',val:0.395,color:'#e74c3c'}]);
+  }
+  else if(currentCat==='drug'){
+    container.innerHTML=chartBlock('c-pk','藥物累積濃度 (mg)');
+    makeChart('c-pk','濃度',data.map(r=>r.pkConc||null),labels,RED,0,2,[
+      {label:'甜蜜點上限 1.4mg',val:1.4,color:'#2e7d52'},
+      {label:'甜蜜點下限 0.9mg',val:0.9,color:'#2e7d52'},
+      {label:'最低防線 0.7mg',val:0.7,color:'#e67e22'},
+      {label:'紅線 1.5mg',val:1.5,color:'#c0392b'}
+    ]);
+  }
+  else if(currentCat==='sleep'){
+    container.innerHTML=
+      chartBlock('c-slhrs','睡眠時數 (hr)')+
+      chartBlock('c-slq','睡眠品質 (1-5)')+
+      chartBlock('c-sun','日曬');
+    makeChart('c-slhrs','睡眠時數',data.map(r=>r.sleepHrs||null),labels,'#7c3aed',0,14,[{label:'建議8小時',val:8,color:'#2e7d52'}]);
+    makeChart('c-slq','睡眠品質',data.map(r=>r.sleepQuality||null),labels,'#2563eb',0,5);
+    const sunMap={'☀️ 充足（30分鐘以上）':3,'🌤️ 普通（10-30分鐘）':2,'⛅ 短暫曬到':1,'☁️ 沒有日曬':0,'🌙 完全室內':0};
+    makeBarChart('c-sun','日曬',data.map(r=>sunMap[r.sun]||0),labels,'rgba(255,165,0,0.6)');
+  }
+  else if(currentCat==='diet'){
+    container.innerHTML=
+      chartBlock('c-kcal','熱量 (kcal)')+
+      chartBlock('c-macro','巨量營養素 (g)');
+    makeChart('c-kcal','熱量',data.map(r=>r.kcal||null),labels,'#e67e22');
+    if(chartInstances['c-macro'])chartInstances['c-macro'].destroy();
+    const ctx=document.getElementById('c-macro');
+    if(ctx){
+      chartInstances['c-macro']=new Chart(ctx,{
+        type:'line',
+        data:{labels,datasets:[
+          {label:'蛋白質P',data:data.map(r=>r.macroP||null),borderColor:'#e74c3c',borderWidth:2,pointRadius:2,tension:0.3,fill:false},
+          {label:'碳水C',data:data.map(r=>r.macroC||null),borderColor:'#3498db',borderWidth:2,pointRadius:2,tension:0.3,fill:false},
+          {label:'脂肪F',data:data.map(r=>r.macroF||null),borderColor:'#f39c12',borderWidth:2,pointRadius:2,tension:0.3,fill:false}
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:11},boxWidth:20}}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:8},grid:{color:'rgba(0,0,0,0.05)'}},y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,0.05)'}}}}
+      });
+    }
+  }
+  else if(currentCat==='train'){
+    container.innerHTML=chartBlock('c-train','訓練體感 (1-5星)');
+    makeChart('c-train','訓練體感',data.map(r=>r.workoutStars||null),labels,RED,0,5);
+  }
+  else if(currentCat==='allergy'){
+    container.innerHTML=chartBlock('c-allergy','過敏狀況');
+    const aMap={'無異狀':0,'前兆':1,'輕微':2,'嚴重':3,'嚴重+吐':4,'感冒':1};
+    makeBarChart('c-allergy','過敏',data.map(r=>aMap[r.allergy]||0),labels,'rgba(231,76,60,0.5)');
+  }
+}
+
 </script>
+
+<div id="page-chart" class="page">
+<div class="app" style="padding-bottom:80px">
+  <div style="background:var(--red);padding:16px 20px 12px;position:sticky;top:0;z-index:10">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:24px">📊</span>
+      <div>
+        <div style="font-size:19px;font-weight:500;color:#FAEEE4">趨勢分析</div>
+        <div style="font-size:11px;color:rgba(250,238,228,0.7);margin-top:2px">Cherry Bomb Journal</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin:10px 14px 0">
+    <div class="range-row" id="range-btns">
+      <button class="range-btn active" onclick="setRange('7d',this)">1週</button>
+      <button class="range-btn" onclick="setRange('30d',this)">1個月</button>
+      <button class="range-btn" onclick="setRange('60d',this)">2個月</button>
+      <button class="range-btn" onclick="setRange('90d',this)">3個月</button>
+      <button class="range-btn" onclick="setRange('all',this)">全部</button>
+      <button class="range-btn" onclick="setRange('custom',this)">自訂</button>
+    </div>
+    <div class="custom-range" id="custom-range" style="display:none">
+      <input type="date" id="range-start" onchange="renderCharts()">
+      <span style="color:var(--muted);font-size:13px">～</span>
+      <input type="date" id="range-end" onchange="renderCharts()">
+    </div>
+  </div>
+  <div style="margin:8px 14px 0">
+    <div class="chart-tabs" id="chart-tabs">
+      <button class="chart-tab active" onclick="setChartCat('body',this)">📊 身體組成</button>
+      <button class="chart-tab" onclick="setChartCat('drug',this)">💉 藥物</button>
+      <button class="chart-tab" onclick="setChartCat('sleep',this)">😴 睡眠</button>
+      <button class="chart-tab" onclick="setChartCat('diet',this)">🍽️ 飲食</button>
+      <button class="chart-tab" onclick="setChartCat('train',this)">🏋️ 訓練</button>
+      <button class="chart-tab" onclick="setChartCat('allergy',this)">🤧 過敏</button>
+    </div>
+  </div>
+  <div id="charts-container" style="padding-bottom:20px"></div>
+</div>
+</div>
+
+<div id="page-history" class="page">
+<div class="app" style="padding-bottom:80px">
+  <div style="background:var(--red);padding:16px 20px 12px;position:sticky;top:0;z-index:10">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:24px">📋</span>
+      <div style="font-size:19px;font-weight:500;color:#FAEEE4">病史紀錄</div>
+    </div>
+  </div>
+  <div style="margin:10px 14px 0;background:#fff;border-radius:14px;padding:13px">
+    <div style="font-size:11px;color:var(--muted);font-weight:500;margin-bottom:8px;letter-spacing:0.5px">健康時間軸</div>
+    <div class="tl-item"><div class="tl-date">2017/03</div><div class="tl-body"><span class="badge b-red">骨科</span><br>確診椎弓斷裂，同年開始健身</div></div>
+    <div class="tl-item"><div class="tl-date">2024/02</div><div class="tl-body"><span class="badge b-purple">婦科</span><br>小產</div></div>
+    <div class="tl-item"><div class="tl-date">2024/09</div><div class="tl-body"><span class="badge b-purple">婦科</span><br>腹腔鏡取子宮肌瘤</div></div>
+    <div class="tl-item"><div class="tl-date">2025/06</div><div class="tl-body"><span class="badge b-blue">體雕</span><br>腹部環形抽脂手術</div></div>
+    <div class="tl-item"><div class="tl-date">2025/09/04</div><div class="tl-body"><span class="badge b-red">代謝</span><br>HOMA-IR 2.3↑，HbA1c 5.0，確認胰島素阻抗</div></div>
+    <div class="tl-item"><div class="tl-date">2025/10/15</div><div class="tl-body"><span class="badge b-green">治療</span><br>開始猛健樂低劑量治療</div></div>
+    <div class="tl-item"><div class="tl-date">2025/10/28</div><div class="tl-body"><span class="badge b-blue">DXA</span><br>體脂率 36.2%・骨密 T-score -0.6（正常）・瘦體組織 33,662g・內臟脂肪 67.6cm²</div></div>
+    <div class="tl-item"><div class="tl-date">2025/11/26</div><div class="tl-body"><span class="badge b-green">代謝</span><br>HOMA-IR 1.0（藥物作用期間，參考性有限）</div></div>
+    <div class="tl-item"><div class="tl-date">2026/01</div><div class="tl-body"><span class="badge b-green">訓練</span><br>開始增肌期，均熱量 1700–1800 kcal</div></div>
+    <div class="tl-item"><div class="tl-date">2026/03/16</div><div class="tl-body"><span class="badge b-red">代謝</span><br>HOMA-IR 1.7（改善中）・LDL 131↑・eGFR 87（監測中）・HDL 79（優）</div></div>
+    <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
+    <div style="font-size:11px;color:var(--muted);font-weight:500;margin:12px 0 8px;letter-spacing:0.5px">最新血檢（2026/03/16）</div>
+    <div class="lab-row"><span class="ln">飯前血糖</span><span class="lv">95 mg/dL</span></div>
+    <div class="lab-row"><span class="ln">HOMA-IR</span><span class="lv w">1.7 ↑（早期阻抗）</span></div>
+    <div class="lab-row"><span class="ln">HDL</span><span class="lv g">79 mg/dL ✓</span></div>
+    <div class="lab-row"><span class="ln">LDL</span><span class="lv w">131 mg/dL ↑</span></div>
+    <div class="lab-row"><span class="ln">三酸甘油酯</span><span class="lv g">48 mg/dL ✓</span></div>
+    <div class="lab-row"><span class="ln">eGFR</span><span class="lv w">87（Stage 2，監測中）</span></div>
+    <div class="lab-row"><span class="ln">Anti-TPO</span><span class="lv g">15.2 ✓</span></div>
+  </div>
+</div>
+</div>
+
+<div class="bottom-nav" style="max-width:480px;left:50%;transform:translateX(-50%)">
+  <button class="nav-btn active" id="nav-form" onclick="switchPage('form')"><span class="nav-icon">📝</span>填表</button>
+  <button class="nav-btn" id="nav-chart" onclick="switchPage('chart')"><span class="nav-icon">📊</span>趨勢</button>
+  <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="nav-icon">📋</span>病史</button>
+</div>
+
 </body>
 </html>
