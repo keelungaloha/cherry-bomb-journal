@@ -591,7 +591,7 @@ function doSubmit(){
     sun:document.querySelector('#sun .pill.active')?.textContent||'',
     allergy:Array.from(document.querySelectorAll('#al .pill.active')).map(b=>b.dataset.v||b.textContent).join('、')||'無',
     allergyMed:document.querySelector('#al-med .pill.active')?.textContent||'',
-    edemaRate:document.getElementById('ed-v')?.textContent||'',
+    edemaRate:(function(){var v=document.getElementById('ed-v')?.textContent||'';var n=parseFloat(v);return isNaN(n)?'':n;}()),
     period:document.querySelector('#pe .pill.active')?.textContent||'',
     appetite:document.querySelector('#ap .pill.active')?.textContent||'',
     moodNote:document.getElementById('n-mood').value||'',
@@ -704,7 +704,7 @@ function gcalApply(){
 
 
 // ── Google Sheets API ──
-const SHEET_HEADERS = ['日期','體重','骨骼肌','體脂肪','內臟脂肪','細胞內水','細胞外水','入睡時間','起床時間','睡眠時數','睡眠品質','睡眠干擾','體態感受','運動類型','運動表現體感','訓練體感','熱量','蛋白質P','碳水C','脂肪F','食慾','日曬','猛健樂(mg)','藥物濃度','生理期狀態','過敏狀況','用藥','水腫率','心情備註','身體備註'];
+const SHEET_HEADERS = ['日期','體重','骨骼肌','體脂肪','內臟脂肪','細胞內水','細胞外水','水腫率','入睡時間','起床時間','睡眠時數','睡眠品質','睡眠干擾','體態感受','運動類型','運動表現體感','訓練體感','熱量','蛋白質P','碳水C','脂肪F','食慾','日曬','猛健樂(mg)','藥物濃度','生理期狀態','過敏狀況','心情備註','身體備註'];
 
 async function sheetsInit(){
   if(!gcalToken) return;
@@ -744,6 +744,7 @@ async function sheetsAppend(record){
     record.visceral||'',
     record.icw||'',
     record.ecw||'',
+    record.edemaRate||'',
     record.sleepStart||'',
     record.sleepEnd||'',
     record.sleepHrs||'',
@@ -763,8 +764,6 @@ async function sheetsAppend(record){
     record.pkConc||'',
     record.period||'',
     record.allergy||'',
-    record.allergyMed||'',
-    record.edemaRate||'',
     record.moodNote||'',
     record.bodyNote||''
   ];
