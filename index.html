@@ -109,17 +109,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<div class="cycle-banner">
-  <div class="phase" id="cyph">輸入月經日期以顯示週期</div>
-  <div class="tip" id="cypt">請在生理週期欄位填入最近一次月經第一天</div>
-</div>
-
-<div class="carb-banner" id="carb-banner">
-  <div class="carb-title">🥗 今日碳循環目標</div>
-  <div class="carb-row" id="carb-row"></div>
-  <div class="carb-nums" id="carb-nums"></div>
-</div>
-
 <div class="section">
   <div class="sec-hd">⏰ 時間設定</div>
   <div class="sec-bd">
@@ -131,12 +120,53 @@ textarea{resize:none;height:65px;line-height:1.5}
 </div>
 
 <div class="section">
-  <div class="sec-hd">⚡ 即時計算</div>
+  <div class="sec-hd">🩸 生理週期</div>
   <div class="sec-bd">
-    <div class="calc-grid">
-      <div class="calc-box"><div class="calc-lbl">💉 藥物濃度</div><div class="calc-val" id="pk-v">—</div><div class="calc-sub" id="pk-s">輸入注射紀錄</div></div>
-      <div class="calc-box"><div class="calc-lbl">💧 水腫率</div><div class="calc-val" id="ed-v">—</div><div class="calc-sub">ECW/TBW</div></div>
-      <div class="calc-box"><div class="calc-lbl">😴 睡眠時數</div><div class="calc-val" id="sl-v">—</div><div class="calc-sub">小時</div></div>
+    <div style="margin-bottom:12px;padding:10px 12px;background:var(--soft);border-radius:10px;border-left:3px solid var(--red)">
+      <div class="phase" id="cyph" style="font-size:14px;font-weight:500;color:var(--red)">輸入月經日期以顯示週期</div>
+      <div class="tip" id="cypt" style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">請填入最近一次月經第一天</div>
+    </div>
+    <div class="field">
+      <label>今日狀態</label>
+      <div class="pills" id="pe">
+        <button class="pill active">☁️ 平日</button>
+        <button class="pill">🩸 生理期</button>
+      </div>
+    </div>
+    <div class="field"><label>最近一次月經第一天</label><input type="date" id="lmp"></div>
+  </div>
+</div>
+
+<div class="carb-banner" id="carb-banner">
+  <div class="carb-title">🥗 今日碳循環目標</div>
+  <div class="carb-row" id="carb-row"></div>
+  <div class="carb-nums" id="carb-nums"></div>
+</div>
+
+<div class="section">
+  <div class="sec-hd">🤧 過敏/身體</div>
+  <div class="sec-bd">
+    <div class="field">
+      <label>今日狀況</label>
+      <div class="pills" id="al">
+        <button class="pill active" data-v="無">✅ 無異狀</button>
+        <button class="pill" data-v="前兆">🌀 前兆感</button>
+        <button class="pill" data-v="輕微">😤 輕微發作</button>
+        <button class="pill" data-v="嚴重">🤮 嚴重發作</button>
+        <button class="pill" data-v="嚴重+吐">🤮💦 嚴重+嘔吐</button>
+        <button class="pill" data-v="感冒">🤒 感冒症狀</button>
+        <button class="pill" data-v="抗組織胺">💊 有吃藥:抗組織胺</button>
+        <button class="pill" data-v="鼻炎錠">💊 有吃藥:鼻炎錠</button>
+      </div>
+    </div>
+    <div id="med-f" style="display:none" class="field">
+      <label>用藥 💊</label>
+      <div class="pills" id="al-med">
+        <button class="pill active">無吃藥</button>
+        <button class="pill">抗組織胺</button>
+        <button class="pill">鼻炎錠</button>
+        <button class="pill">兩種都吃</button>
+      </div>
     </div>
   </div>
 </div>
@@ -227,16 +257,13 @@ textarea{resize:none;height:65px;line-height:1.5}
 </div>
 
 <div class="section">
-  <div class="sec-hd">🩸 生理週期</div>
+  <div class="sec-hd">⚡ 即時計算</div>
   <div class="sec-bd">
-    <div class="field">
-      <label>今日狀態</label>
-      <div class="pills" id="pe">
-        <button class="pill active">☁️ 平日</button>
-        <button class="pill">🩸 生理期</button>
-      </div>
+    <div class="calc-grid">
+      <div class="calc-box"><div class="calc-lbl">💉 藥物濃度</div><div class="calc-val" id="pk-v">—</div><div class="calc-sub" id="pk-s">輸入注射紀錄</div></div>
+      <div class="calc-box"><div class="calc-lbl">💧 水腫率</div><div class="calc-val" id="ed-v">—</div><div class="calc-sub">ECW/TBW</div></div>
+      <div class="calc-box"><div class="calc-lbl">😴 睡眠時數</div><div class="calc-val" id="sl-v">—</div><div class="calc-sub">小時</div></div>
     </div>
-    <div class="field"><label>最近一次月經第一天</label><input type="date" id="lmp"></div>
   </div>
 </div>
 
@@ -311,32 +338,6 @@ textarea{resize:none;height:65px;line-height:1.5}
 </div>
 
 <div class="section">
-  <div class="sec-hd">🤧 過敏/身體</div>
-  <div class="sec-bd">
-    <div class="field">
-      <label>今日狀況</label>
-      <div class="pills" id="al">
-        <button class="pill active" data-v="無">✅ 無異狀</button>
-        <button class="pill" data-v="前兆">🌀 前兆感</button>
-        <button class="pill" data-v="輕微">😤 輕微發作</button>
-        <button class="pill" data-v="嚴重">🤮 嚴重發作</button>
-        <button class="pill" data-v="嚴重+吐">🤮💦 嚴重+嘔吐</button>
-        <button class="pill" data-v="感冒">🤒 感冒症狀</button>
-      </div>
-    </div>
-    <div id="med-f" style="display:none" class="field">
-      <label>用藥 💊</label>
-      <div class="pills" id="al-med">
-        <button class="pill active">無吃藥</button>
-        <button class="pill">抗組織胺</button>
-        <button class="pill">鼻炎錠</button>
-        <button class="pill">兩種都吃</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="section">
   <div class="sec-hd">🏷️ 特殊事件</div>
   <div class="sec-bd">
     <div class="field">
@@ -345,10 +346,7 @@ textarea{resize:none;height:65px;line-height:1.5}
         <button class="etag">🩸 抽血日</button>
         <button class="etag">🦴 量DXA日</button>
         <button class="etag">📏 量腰臀圍日</button>
-        <button class="etag">🔄 開始碳循環</button>
-        <button class="etag">📉 Deload週</button>
         <button class="etag">💊 新補充品</button>
-        <button class="etag">🩺 回診日</button>
       </div>
     </div>
   </div>
@@ -374,6 +372,8 @@ const carbPlans={
   lut:{'硬舉':{t:'🔴 高碳',p:120,c:195,f:75,k:1935},'深蹲':{t:'🔴 高碳',p:120,c:195,f:75,k:1935},'上肢':{t:'🟡 中碳',p:120,c:155,f:75,k:1775},'休息':{t:'🟢 低碳',p:120,c:115,f:75,k:1615}}
 };
 let phaseKey='fol';
+// PK 基準點：2026/5/22 起始濃度 0.886mg
+const PK_BASELINE={date:'2026-05-21',conc:1.019};
 window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]');
 
 function init(){
@@ -522,15 +522,18 @@ function calcPK(){
   const rd=document.getElementById('rec-date')?.value||new Date().toISOString().split('T')[0];
   const today=new Date(rd);
   let c=0;
+  // 加入基準點衰減
+  const baseDays=(today-new Date(PK_BASELINE.date))/86400000;
+  if(baseDays>=0) c+=PK_BASELINE.conc*Math.pow(DECAY,baseDays);
+  // 加入基準點之後的注射歷史（當天打的不算）
   window._pkd.forEach(d=>{
-    const da=(today-new Date(d.date))/86400000;
-    if(da>=0&&da<60){c+=d.dose*0.5*Math.pow(DECAY,da);if(da>=1)c+=d.dose*0.5*Math.pow(DECAY,da-1)}
+    const injDate=new Date(d.date);
+    if(injDate>=new Date(PK_BASELINE.date)&&injDate<today){
+      const da=(today-injDate)/86400000;
+      if(da>=1) c+=d.dose*0.5*Math.pow(DECAY,da-1);
+      if(da>=2) c+=d.dose*0.5*Math.pow(DECAY,da-2);
+    }
   });
-  const mjActive=document.querySelector('#mj .pill.active');
-  if(mjActive&&mjActive.textContent!=='☁️ 無'){
-    const nd=parseFloat(mjActive.textContent.replace(/[^0-9.]/g,''));
-    if(nd>0){c+=nd*0.5;c+=nd*0.5*DECAY}
-  }
   const el=document.getElementById('pk-v'),st=document.getElementById('pk-s');
   el.textContent=c.toFixed(2)+' mg';
   if(c<0.7){el.style.color='#c0392b';st.textContent='⚠️ 低於防線 0.7mg'}
