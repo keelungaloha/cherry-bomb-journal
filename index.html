@@ -573,9 +573,14 @@ function doSubmit(){
     visceral:parseFloat(document.getElementById('vi').value)||null,
     icw:parseFloat(document.getElementById('icw').value)||null,
     ecw:parseFloat(document.getElementById('ecw').value)||null,
+    sleepStart:document.getElementById('s-start').value||'',
+    sleepEnd:document.getElementById('s-end').value||'',
     sleepHrs:slHrs,
     sleepQuality:parseInt(document.getElementById('sq').dataset.value)||null,
+    sleepDisturb:Array.from(document.querySelectorAll('.pills .pill.multi.active')).map(b=>b.textContent).join('、')||'',
     bodyFeel:parseInt(document.getElementById('bf').dataset.value)||null,
+    workoutType:document.querySelector('#wt-type .pill.active')?.textContent||'',
+    workoutFeel:Array.from(document.querySelectorAll('#wt-type~div .pill.multi.active')).map(b=>b.textContent).join('、')||'',
     workoutStars:parseInt(document.getElementById('ws').dataset.value)||null,
     kcal:parseFloat(document.getElementById('cal').value)||null,
     macroP:parseFloat(document.getElementById('macro-p').value)||null,
@@ -584,7 +589,9 @@ function doSubmit(){
     pkConc:pkVal,
     mounjaro:doseNum||0,
     sun:document.querySelector('#sun .pill.active')?.textContent||'',
-    allergy:document.querySelector('#al .pill.active')?.dataset.v||'無',
+    allergy:Array.from(document.querySelectorAll('#al .pill.active')).map(b=>b.dataset.v||b.textContent).join('、')||'無',
+    allergyMed:document.querySelector('#al-med .pill.active')?.textContent||'',
+    edemaRate:document.getElementById('ed-v')?.textContent||'',
     period:document.querySelector('#pe .pill.active')?.textContent||'',
     appetite:document.querySelector('#ap .pill.active')?.textContent||'',
     moodNote:document.getElementById('n-mood').value||'',
@@ -697,7 +704,7 @@ function gcalApply(){
 
 
 // ── Google Sheets API ──
-const SHEET_HEADERS = ['日期','體重','骨骼肌','體脂肪','內臟脂肪','細胞內水','細胞外水','睡眠時數','睡眠品質','體態感受','熱量','蛋白質P','碳水C','脂肪F','食慾','運動類型','訓練體感','日曬','猛健樂(mg)','藥物濃度','生理期狀態','過敏狀況','用藥','水腫率','心情備註','身體備註'];
+const SHEET_HEADERS = ['日期','體重','骨骼肌','體脂肪','內臟脂肪','細胞內水','細胞外水','入睡時間','起床時間','睡眠時數','睡眠品質','睡眠干擾','體態感受','運動類型','運動表現體感','訓練體感','熱量','蛋白質P','碳水C','脂肪F','食慾','日曬','猛健樂(mg)','藥物濃度','生理期狀態','過敏狀況','用藥','水腫率','心情備註','身體備註'];
 
 async function sheetsInit(){
   if(!gcalToken) return;
@@ -737,16 +744,20 @@ async function sheetsAppend(record){
     record.visceral||'',
     record.icw||'',
     record.ecw||'',
+    record.sleepStart||'',
+    record.sleepEnd||'',
     record.sleepHrs||'',
     record.sleepQuality||'',
+    record.sleepDisturb||'',
     record.bodyFeel||'',
+    record.workoutType||'',
+    record.workoutFeel||'',
+    record.workoutStars||'',
     record.kcal||'',
     record.macroP||'',
     record.macroC||'',
     record.macroF||'',
     record.appetite||'',
-    record.workoutType||'',
-    record.workoutStars||'',
     record.sun||'',
     record.mounjaro||0,
     record.pkConc||'',
