@@ -187,7 +187,7 @@ textarea{resize:none;height:65px;line-height:1.5}
     </div>
     <div class="field">
       <label>睡眠干擾（可複選）</label>
-      <div class="pills">
+      <div class="pills" id="sl-disturb">
         <button class="pill multi">✅ 一覺到天亮</button>
         <button class="pill multi">🧩 碎片淺眠</button>
         <button class="pill multi">😰 焦慮停不下來</button>
@@ -577,7 +577,7 @@ function doSubmit(){
     sleepEnd:document.getElementById('s-end').value||'',
     sleepHrs:slHrs,
     sleepQuality:parseInt(document.getElementById('sq').dataset.value)||null,
-    sleepDisturb:Array.from(document.querySelectorAll('.pills .pill.multi.active')).map(b=>b.textContent).join('、')||'',
+    sleepDisturb:Array.from(document.querySelectorAll('#sl-disturb .pill.multi.active')).map(b=>b.textContent).join('、')||'',
     bodyFeel:parseInt(document.getElementById('bf').dataset.value)||null,
     workoutType:document.querySelector('#wt-type .pill.active')?.textContent||'',
     workoutFeel:Array.from(document.querySelectorAll('#wt-feel .pill.multi.active')).map(b=>b.textContent).join('、')||'',
