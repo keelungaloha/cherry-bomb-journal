@@ -315,9 +315,7 @@ textarea{resize:none;height:65px;line-height:1.5}
         <button class="pill active">🛋️ 休息日</button>
       </div>
     </div>
-    <div class="field">
-      <label>運動表現體感（可複選）</label>
-      <div class="pills">
+      <div class="pills" id="wt-feel">
         <button class="pill multi">🔥 破PR</button>
         <button class="pill multi">💪 正常發揮</button>
         <button class="pill multi">😮‍💨 很喘吃力</button>
@@ -580,7 +578,7 @@ function doSubmit(){
     sleepDisturb:Array.from(document.querySelectorAll('.pills .pill.multi.active')).map(b=>b.textContent).join('、')||'',
     bodyFeel:parseInt(document.getElementById('bf').dataset.value)||null,
     workoutType:document.querySelector('#wt-type .pill.active')?.textContent||'',
-    workoutFeel:Array.from(document.querySelectorAll('#wt-type~div .pill.multi.active')).map(b=>b.textContent).join('、')||'',
+    workoutFeel:Array.from(document.querySelectorAll('#wt-feel .pill.multi.active')).map(b=>b.textContent).join('、')||'',
     workoutStars:parseInt(document.getElementById('ws').dataset.value)||null,
     kcal:parseFloat(document.getElementById('cal').value)||null,
     macroP:parseFloat(document.getElementById('macro-p').value)||null,
@@ -711,15 +709,15 @@ async function sheetsInit(){
   try{
     // Check if header row exists
     const res = await fetch(
-      'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A1:Z1',
+      'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A1:AC1',
       {headers:{Authorization:'Bearer '+gcalToken}}
     );
     const data = await res.json();
     const existing = data.values && data.values[0];
-    if(!existing || existing.length === 0){
+    if(!existing || existing.length < SHEET_HEADERS.length){
       // Write headers
       await fetch(
-        'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A1:Z1?valueInputOption=RAW',
+        'https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A1:AC1?valueInputOption=RAW',
         {
           method:'PUT',
           headers:{Authorization:'Bearer '+gcalToken,'Content-Type':'application/json'},
