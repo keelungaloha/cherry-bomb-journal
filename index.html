@@ -306,8 +306,13 @@ textarea{resize:none;height:65px;line-height:1.5}
 <div class="section">
   <div class="sec-hd">⚡ 即時計算</div>
   <div class="sec-bd">
+    <div style="background:#f0fff4;border:1.5px solid #a8dbb8;border-radius:10px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;color:#2e7d52;font-weight:500">💉 今日實際濃度（<span id="today-date-lbl"></span>）</span>
+      <span style="font-size:20px;font-weight:500;color:#2e7d52" id="pk-today">—</span>
+      <span style="font-size:11px;color:#2e7d52" id="pk-today-s"></span>
+    </div>
     <div class="calc-grid">
-      <div class="calc-box"><div class="calc-lbl">💉 藥物濃度</div><div class="calc-val" id="pk-v">—</div><div class="calc-sub" id="pk-s">輸入注射紀錄</div></div>
+      <div class="calc-box"><div class="calc-lbl">💉 紀錄日濃度</div><div class="calc-val" id="pk-v">—</div><div class="calc-sub" id="pk-s">對應紀錄日</div></div>
       <div class="calc-box"><div class="calc-lbl">💧 水腫率</div><div class="calc-val" id="ed-v">—</div><div class="calc-sub">ECW/TBW</div></div>
       <div class="calc-box"><div class="calc-lbl">😴 睡眠時數</div><div class="calc-val" id="sl-v">—</div><div class="calc-sub">小時</div></div>
     </div>
@@ -573,6 +578,33 @@ function calcPK(){
   else if(c<0.9){el.style.color='#e67e22';st.textContent='🟡 偏低：碳水慾望風險'}
   else if(c<=1.6){el.style.color='#2e7d52';st.textContent='✅ 甜蜜點 0.9–1.6mg'}
   else{el.style.color='#c0392b';st.textContent='⚠️ 超過天花板 1.6mg'}
+  calcPKToday();
+}
+
+function calcPKToday(){
+  const now=new Date();
+  const todayStr=now.toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+  const today=new Date(todayStr);
+  let c=0;
+  const allInj=[...HIST_INJ,...window._pkd];
+  allInj.forEach(d=>{
+    const injDate=new Date(d.date);
+    if(injDate>=today) return;
+    const da=(today-injDate)/86400000;
+    if(da>=1) c+=d.dose*0.5*Math.pow(DECAY,da-1);
+    if(da>=2) c+=d.dose*0.5*Math.pow(DECAY,da-2);
+  });
+  const el=document.getElementById('pk-today');
+  const st=document.getElementById('pk-today-s');
+  const lbl=document.getElementById('today-date-lbl');
+  if(lbl) lbl.textContent=todayStr;
+  if(el) el.textContent=c.toFixed(2)+' mg';
+  if(st){
+    if(c<0.7){st.textContent='⚠️ 危險';el.style.color='#c0392b';}
+    else if(c<0.9){st.textContent='🟡 偏低';el.style.color='#e67e22';}
+    else if(c<=1.6){st.textContent='✅ 甜蜜點';el.style.color='#2e7d52';}
+    else{st.textContent='⚠️ 超標';el.style.color='#c0392b';}
+  }
 }
 
 function doSubmit(){
@@ -993,8 +1025,7 @@ function injectHistory(){
     <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/16</div><div class="tl-body"><span class="badge b-red">治療</span><br>猛健樂停藥，準備 5/30 抽血</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
-     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
-    </div></div>
+    <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0（蛋白質下修至105g、高低碳落差100g）</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">補充品</span><br>開始服用肌醇（Inositol）與 R-Lipoic Acid</div></div>
 
 
