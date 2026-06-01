@@ -384,7 +384,7 @@ const carbPlans={
   lut:{'硬舉':{t:'🔴 高碳',p:105,c:200,f:55,k:1675},'深蹲':{t:'🔴 高碳',p:105,c:200,f:55,k:1675},'上肢':{t:'🟡 中碳',p:105,c:155,f:65,k:1605},'休息':{t:'🟢 低碳',p:105,c:110,f:80,k:1540}}
 };
 let phaseKey='fol';
-const PK_BASELINE={date:'2026-05-21',conc:1.019};
+const PK_BASELINE={date:'2026-05-21',conc:0.885};
 window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]');
 
 // FIX 2: LMP 自動記憶
@@ -976,14 +976,12 @@ function injectHistory(){
     <div class="tl-item"><div class="tl-date">2025/11/26</div><div class="tl-body"><span class="badge b-green">代謝</span><br>HOMA-IR 1.0（藥物作用期間，參考性有限）</div></div>
     <div class="tl-item"><div class="tl-date">2026/01</div><div class="tl-body"><span class="badge b-green">訓練</span><br>開始增肌期，均熱量 1700–1800 kcal</div></div>
     <div class="tl-item"><div class="tl-date">2026/03/16</div><div class="tl-body"><span class="badge b-red">代謝</span><br>HOMA-IR 1.7（改善中）・LDL 131↑・eGFR 87（監測中）・HDL 79（優）</div></div>
-    <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫(蛋白質120g)</div></div>
+    <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/16</div><div class="tl-body"><span class="badge b-red">治療</span><br>猛健樂停藥，準備 5/30 抽血</div></div>
-    <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，停藥兩週後恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
-    <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
+    <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
+     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
     </div></div>
     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">補充品</span><br>開始服用肌醇（Inositol）與 R-Lipoic Acid</div></div>
-
-
   </div>
 
   <div style="margin:10px 0 0;background:#fff;border-radius:14px;overflow:hidden">
