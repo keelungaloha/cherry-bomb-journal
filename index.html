@@ -384,7 +384,23 @@ const carbPlans={
   lut:{'硬舉':{t:'🔴 高碳',p:105,c:200,f:55,k:1675},'深蹲':{t:'🔴 高碳',p:105,c:200,f:55,k:1675},'上肢':{t:'🟡 中碳',p:105,c:155,f:65,k:1605},'休息':{t:'🟢 低碳',p:105,c:110,f:80,k:1540}}
 };
 let phaseKey='fol';
-const PK_BASELINE={date:'2026-05-21',conc:0.885};
+// 歷史施打紀錄（硬編碼，不依賴 localStorage）
+const HIST_INJ=[
+  {date:'2025-10-14',dose:2.5},{date:'2025-10-21',dose:2.5},{date:'2025-10-28',dose:2.5},
+  {date:'2025-11-04',dose:2.5},{date:'2025-11-11',dose:2.5},
+  {date:'2025-11-27',dose:1.0},{date:'2025-12-03',dose:1.0},{date:'2025-12-10',dose:1.0},
+  {date:'2025-12-17',dose:1.25},{date:'2025-12-24',dose:1.5},
+  {date:'2026-01-01',dose:1.5},{date:'2026-01-24',dose:1.0},{date:'2026-01-30',dose:1.0},
+  {date:'2026-02-01',dose:0.25},{date:'2026-02-06',dose:0.5},{date:'2026-02-10',dose:0.75},
+  {date:'2026-02-18',dose:0.75},{date:'2026-02-26',dose:0.5},
+  {date:'2026-03-06',dose:0.5},{date:'2026-03-16',dose:0.5},{date:'2026-03-21',dose:0.75},
+  {date:'2026-03-22',dose:1.75},{date:'2026-03-27',dose:1.25},
+  {date:'2026-04-01',dose:1.25},{date:'2026-04-11',dose:0.5},{date:'2026-04-14',dose:0.5},
+  {date:'2026-04-18',dose:0.5},{date:'2026-04-23',dose:0.5},{date:'2026-04-28',dose:0.5},
+  {date:'2026-05-03',dose:0.5},{date:'2026-05-06',dose:0.5},
+  {date:'2026-05-09',dose:0.5},{date:'2026-05-12',dose:0.5},
+  {date:'2026-05-16',dose:0.67},{date:'2026-05-30',dose:0.84},
+];
 window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]');
 
 // FIX 2: LMP 自動記憶
@@ -542,15 +558,14 @@ function calcPK(){
   const rd=document.getElementById('rec-date')?.value||new Date().toISOString().split('T')[0];
   const today=new Date(rd);
   let c=0;
-  const baseDays=(today-new Date(PK_BASELINE.date))/86400000;
-  if(baseDays>=0) c+=PK_BASELINE.conc*Math.pow(DECAY,baseDays);
-  window._pkd.forEach(d=>{
+  // 合併歷史紀錄 + 本機新填紀錄
+  const allInj=[...HIST_INJ,...window._pkd];
+  allInj.forEach(d=>{
     const injDate=new Date(d.date);
-    if(injDate>=new Date(PK_BASELINE.date)&&injDate<today){
-      const da=(today-injDate)/86400000;
-      if(da>=1) c+=d.dose*0.5*Math.pow(DECAY,da-1);
-      if(da>=2) c+=d.dose*0.5*Math.pow(DECAY,da-2);
-    }
+    if(injDate>=today) return;
+    const da=(today-injDate)/86400000;
+    if(da>=1) c+=d.dose*0.5*Math.pow(DECAY,da-1);
+    if(da>=2) c+=d.dose*0.5*Math.pow(DECAY,da-2);
   });
   const el=document.getElementById('pk-v'),st=document.getElementById('pk-s');
   el.textContent=c.toFixed(2)+' mg';
@@ -979,9 +994,10 @@ function injectHistory(){
     <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/16</div><div class="tl-body"><span class="badge b-red">治療</span><br>猛健樂停藥，準備 5/30 抽血</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
-     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
+    <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
     </div></div>
     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">補充品</span><br>開始服用肌醇（Inositol）與 R-Lipoic Acid</div></div>
+
   </div>
 
   <div style="margin:10px 0 0;background:#fff;border-radius:14px;overflow:hidden">
