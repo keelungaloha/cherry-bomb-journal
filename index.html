@@ -114,15 +114,41 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<!-- FIX 1: Google 授權置頂 -->
 <div class="section" style="margin-top:10px">
-  <div class="sec-hd">🔑 Google 帳號授權</div>
-  <div class="sec-bd" style="padding:10px 13px">
-    <div id="gcal-auth-banner" class="gcal-auth-banner">
-      <div class="gcal-auth-label" id="gcal-auth-label"><strong>尚未授權</strong> — 飲食需從行事曆抓取，請先授權</div>
-      <button id="gcal-auth-btn" onclick="gcalAuth()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">🔑 授權</button>
+  <div class="sec-hd">🍽️ 飲食</div>
+  <div class="sec-bd">
+    <div class="field">
+      <div id="gcal-auth-banner" class="gcal-auth-banner" style="margin-bottom:10px">
+        <div class="gcal-auth-label" id="gcal-auth-label"><strong>尚未授權</strong> — 請先授權 Google 帳號才能抓取行事曆飲食</div>
+        <button id="gcal-auth-btn" onclick="gcalAuth()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">🔑 授權</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="gcal-fetch-btn" onclick="gcalFetch()" style="background:var(--soft);color:var(--red);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:none">📅 抓取昨日飲食</button>
+        <div id="gcal-fetch-status" style="font-size:12px;color:var(--muted);padding-top:6px"></div>
+      </div>
     </div>
-    <div id="gcal-status" style="font-size:12px;color:var(--muted);display:none"></div>
+    <div id="gcal-result" style="display:none" class="field">
+      <label>抓取結果</label>
+      <div id="gcal-event-title" style="font-size:13px;color:var(--text);background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:8px;line-height:1.6"></div>
+      <button onclick="gcalApply()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit">✅ 套用到表單</button>
+    </div>
+    <div class="field"><label>熱量 kcal</label><input type="number" id="cal" placeholder="1800"></div>
+    <div class="row3">
+      <div class="field"><label>蛋白質 P (g)</label><input type="number" id="macro-p" placeholder="120"></div>
+      <div class="field"><label>碳水 C (g)</label><input type="number" id="macro-c" placeholder="175"></div>
+      <div class="field"><label>脂肪 F (g)</label><input type="number" id="macro-f" placeholder="50"></div>
+    </div>
+    <div class="field"><label>飲食明細</label><textarea id="food-detail" placeholder="從行事曆自動填入，或手動輸入..." style="height:80px"></textarea></div>
+    <div class="field">
+      <label>食慾狀態</label>
+      <div class="pills" id="ap">
+        <button class="pill">🧋 愛喝甜飲/碳水</button>
+        <button class="pill">😊 正常吃飽就停</button>
+        <button class="pill">🍉 餓但會飽</button>
+        <button class="pill">🥭 餓且吃不飽</button>
+        <button class="pill">😶 完全沒食慾</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -288,40 +314,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<div class="section">
-  <div class="sec-hd">🍽️ 飲食</div>
-  <div class="sec-bd">
-    <div class="field">
-      <label>從 Google 行事曆抓取 📅</label>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="gcal-fetch-btn" onclick="gcalFetch()" style="background:var(--soft);color:var(--red);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:none">📅 抓取昨日飲食</button>
-        <div id="gcal-fetch-status" style="font-size:12px;color:var(--muted);padding-top:6px"></div>
-      </div>
-    </div>
-    <div id="gcal-result" style="display:none" class="field">
-      <label>抓取結果</label>
-      <div id="gcal-event-title" style="font-size:13px;color:var(--text);background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:8px;line-height:1.6"></div>
-      <button onclick="gcalApply()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit">✅ 套用到表單</button>
-    </div>
-    <div class="field"><label>熱量 kcal</label><input type="number" id="cal" placeholder="1800"></div>
-    <div class="row3">
-      <div class="field"><label>蛋白質 P (g)</label><input type="number" id="macro-p" placeholder="120"></div>
-      <div class="field"><label>碳水 C (g)</label><input type="number" id="macro-c" placeholder="175"></div>
-      <div class="field"><label>脂肪 F (g)</label><input type="number" id="macro-f" placeholder="50"></div>
-    </div>
-    <div class="field"><label>飲食明細</label><textarea id="food-detail" placeholder="從行事曆自動填入，或手動輸入..." style="height:80px"></textarea></div>
-    <div class="field">
-      <label>食慾狀態</label>
-      <div class="pills" id="ap">
-        <button class="pill">🧋 愛喝甜飲/碳水</button>
-        <button class="pill">😊 正常吃飽就停</button>
-        <button class="pill">🍉 餓但會飽</button>
-        <button class="pill">🥭 餓且吃不飽</button>
-        <button class="pill">😶 完全沒食慾</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div class="section">
   <div class="sec-hd">🏋️ 運動</div>
@@ -661,8 +653,9 @@ function gcalCheckToken(){
   }
 }
 
-// FIX 1: 更新授權狀態UI（置頂banner + 飲食區按鈕）
+// FIX 1: 更新授權狀態UI（置頂banner + 飲食區同步）
 function applyGcalAuthed(){
+  // 頂部 banner
   const banner=document.getElementById('gcal-auth-banner');
   const label=document.getElementById('gcal-auth-label');
   const authBtn=document.getElementById('gcal-auth-btn');
@@ -694,6 +687,7 @@ async function gcalFetch(){
       document.getElementById('gcal-auth-btn').style.background='var(--red)';
       document.getElementById('gcal-fetch-btn').style.display='none';
       document.getElementById('gcal-fetch-status').textContent='';
+
       return;
     }
     const data=await res.json();
@@ -983,31 +977,73 @@ function injectHistory(){
     <div class="tl-item"><div class="tl-date">2026/01</div><div class="tl-body"><span class="badge b-green">訓練</span><br>開始增肌期，均熱量 1700–1800 kcal</div></div>
     <div class="tl-item"><div class="tl-date">2026/03/16</div><div class="tl-body"><span class="badge b-red">代謝</span><br>HOMA-IR 1.7（改善中）・LDL 131↑・eGFR 87（監測中）・HDL 79（優）</div></div>
     <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
-    <div style="font-size:11px;color:var(--muted);font-weight:500;margin:12px 0 8px;letter-spacing:0.5px">最新血檢（2026/03/16）</div>
-    <div class="lab-row"><span class="ln">飯前血糖</span><span class="lv">95 mg/dL</span></div>
-    <div class="lab-row"><span class="ln">HOMA-IR</span><span class="lv w">1.7 ↑（早期阻抗）</span></div>
-    <div class="lab-row"><span class="ln">HDL</span><span class="lv g">79 mg/dL ✓</span></div>
-    <div class="lab-row"><span class="ln">LDL</span><span class="lv w">131 mg/dL ↑</span></div>
-    <div class="lab-row"><span class="ln">三酸甘油酯</span><span class="lv g">48 mg/dL ✓</span></div>
-    <div class="lab-row"><span class="ln">eGFR</span><span class="lv w">87（Stage 2，監測中）</span></div>
-    <div class="lab-row"><span class="ln">Anti-TPO</span><span class="lv g">15.2 ✓</span></div>
-    <div style="margin-top:16px">
-      <button onclick="injectHistory()" style="background:var(--red);color:#FAEEE4;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;width:100%">🍒 注入歷史資料（本地）</button>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">將歷史資料匯入趨勢圖（存在瀏覽器本地）</div>
-      <div id="inject-status" style="font-size:12px;color:#2e7d52;margin-top:6px;text-align:center"></div>
-    </div>
-    <div style="margin-top:10px">
-      <button onclick="exportAllToSheets()" style="background:#2e7d52;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;width:100%">📊 匯出所有資料到 Google Sheets</button>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">將本地所有紀錄一次寫入 Sheets（需先在頂端授權）</div>
-      <div id="export-status" style="font-size:12px;color:#2e7d52;margin-top:6px;text-align:center"></div>
+    <div class="tl-item"><div class="tl-date">2026/05/16</div><div class="tl-body"><span class="badge b-red">治療</span><br>猛健樂停藥，準備 5/30 抽血</div></div>
+    <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
+    <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">補充品</span><br>開始服用肌醇（Inositol）與 R-Lipoic Acid</div></div>
+
+
+  </div>
+
+  <div style="margin:10px 0 0;background:#fff;border-radius:14px;overflow:hidden">
+    <div style="background:var(--red);color:#FAEEE4;font-size:11px;font-weight:500;padding:7px 14px;letter-spacing:0.8px">🧪 血檢紀錄</div>
+    <div style="padding:13px">
+      <div style="font-size:11px;color:var(--muted);font-weight:500;margin-bottom:8px;letter-spacing:0.5px">2026/03/16</div>
+      <div class="lab-row"><span class="ln">飯前血糖</span><span class="lv">95 mg/dL</span></div>
+      <div class="lab-row"><span class="ln">HOMA-IR</span><span class="lv w">1.7 ↑（早期阻抗）</span></div>
+      <div class="lab-row"><span class="ln">HDL</span><span class="lv g">79 mg/dL ✓</span></div>
+      <div class="lab-row"><span class="ln">LDL</span><span class="lv w">131 mg/dL ↑</span></div>
+      <div class="lab-row"><span class="ln">三酸甘油酯</span><span class="lv g">48 mg/dL ✓</span></div>
+      <div class="lab-row"><span class="ln">eGFR</span><span class="lv w">87（Stage 2，監測中）</span></div>
+      <div class="lab-row"><span class="ln">Anti-TPO</span><span class="lv g">15.2 ✓</span></div>
     </div>
   </div>
+
+  <div style="margin:10px 0 0;background:#fff;border-radius:14px;overflow:hidden">
+    <div style="background:var(--red);color:#FAEEE4;font-size:11px;font-weight:500;padding:7px 14px;letter-spacing:0.8px">碳循環 5.0｜2026/05/30 啟用</div>
+    <div style="padding:13px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">TDEE 1,900 kcal・目標赤字 300–350 kcal・蛋白質固定 105g・碳水高低差距 100g・脂肪反向配置</div>
+
+      <div style="font-size:11px;color:var(--red);font-weight:500;margin:10px 0 6px;letter-spacing:0.5px">平日版（濾泡期／排卵期）｜每週均 1,516 kcal</div>
+      <div class="lab-row"><span class="ln">🔴 高碳日｜下肢訓練日（週二深蹲、週四硬舉）</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">210g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">40g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,600 kcal</span></div>
+      <div class="lab-row" style="margin-top:6px"><span class="ln">🟡 中碳日｜上肢訓練日（週日）</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">160g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">55g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,535 kcal</span></div>
+      <div class="lab-row" style="margin-top:6px"><span class="ln">🟢 低碳日｜休息日（週一、三、五、六）</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">110g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">75g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,475 kcal</span></div>
+
+      <div style="font-size:11px;color:var(--red);font-weight:500;margin:14px 0 6px;letter-spacing:0.5px">黃體期版｜每週均 1,573 kcal</div>
+      <div class="lab-row"><span class="ln">🔴 高碳日｜下肢訓練日</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">200g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">55g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,675 kcal</span></div>
+      <div class="lab-row" style="margin-top:6px"><span class="ln">🟡 中碳日｜上肢訓練日</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">155g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">65g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,605 kcal</span></div>
+      <div class="lab-row" style="margin-top:6px"><span class="ln">🟢 低碳日｜休息日</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">110g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">80g</span></div>
+      <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,540 kcal</span></div>
+    </div>
+  </div>
+
 </div>
 </div>
 
 <div class="bottom-nav" style="max-width:480px;left:50%;transform:translateX(-50%)">
   <button class="nav-btn active" id="nav-form" onclick="switchPage('form')"><span class="nav-icon">📝</span>填表</button>
-  <button class="nav-btn" id="nav-chart" onclick="switchPage('chart')"><span class="nav-icon">📊</span>趨勢</button>
   <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="nav-icon">📋</span>病史</button>
 </div>
 
