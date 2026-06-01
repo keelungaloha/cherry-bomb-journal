@@ -569,10 +569,10 @@ function calcPK(){
   });
   const el=document.getElementById('pk-v'),st=document.getElementById('pk-s');
   el.textContent=c.toFixed(2)+' mg';
-  if(c<0.7){el.style.color='#c0392b';st.textContent='⚠️ 低於防線 0.7mg'}
-  else if(c>1.6){el.style.color='#c0392b';st.textContent='⚠️ 超過天花板 1.6mg'}
-  else if(c>=0.9&&c<=1.6){el.style.color='#2e7d52';st.textContent='✅ 甜蜜點 0.9–1.6mg'}
-  else{el.style.color='var(--red)';st.textContent='正常範圍'}
+  if(c<0.7){el.style.color='#c0392b';st.textContent='⚠️ 危險：低於防線 0.7mg'}
+  else if(c<0.9){el.style.color='#e67e22';st.textContent='🟡 偏低：碳水慾望風險'}
+  else if(c<=1.6){el.style.color='#2e7d52';st.textContent='✅ 甜蜜點 0.9–1.6mg'}
+  else{el.style.color='#c0392b';st.textContent='⚠️ 超過天花板 1.6mg'}
 }
 
 function doSubmit(){
@@ -861,7 +861,6 @@ function renderCharts(){
     container.innerHTML=chartBlock('c-pk','藥物累積濃度 (mg)');
     makeChart('c-pk','濃度',data.map(r=>r.pkConc||null),labels,RED,0,2,[
       {label:'天花板 1.6mg',val:1.6,color:'#c0392b'},
-      {label:'甜蜜點上限 1.6mg',val:1.6,color:'#2e7d52'},
       {label:'甜蜜點下限 0.9mg',val:0.9,color:'#2e7d52'},
       {label:'最低防線 0.7mg',val:0.7,color:'#e67e22'}
     ]);
@@ -994,9 +993,10 @@ function injectHistory(){
     <div class="tl-item"><div class="tl-date">2026/04</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始血糖節律管理 + 碳循環計畫</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/16</div><div class="tl-body"><span class="badge b-red">治療</span><br>猛健樂停藥，準備 5/30 抽血</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
-    <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
+     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0(蛋白質下修至105g、高低碳落差100g)
     </div></div>
     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">補充品</span><br>開始服用肌醇（Inositol）與 R-Lipoic Acid</div></div>
+
 
   </div>
 
