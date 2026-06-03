@@ -93,7 +93,6 @@ textarea{resize:none;height:65px;line-height:1.5}
 .lv.w{color:#c0392b}
 .lv.g{color:#2e7d52}
 .sec-sub{font-size:11px;color:var(--muted);font-weight:500;margin:12px 0 8px;letter-spacing:0.5px}
-/* FIX 1: Google Auth banner */
 .gcal-auth-banner{background:#fff8f0;border:1.5px solid #f5c6a0;border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .gcal-auth-banner.authed{background:#f0fff4;border-color:#a8dbb8}
 .gcal-auth-label{font-size:12px;color:var(--text);line-height:1.4}
@@ -162,7 +161,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<!-- FIX 2: 生理週期自動記憶 -->
 <div class="section">
   <div class="sec-hd">🩸 生理週期</div>
   <div class="sec-bd">
@@ -193,7 +191,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   <div class="carb-nums" id="carb-nums"></div>
 </div>
 
-<!-- FIX 3: 過敏區塊移除用藥子選單 -->
 <div class="section">
   <div class="sec-hd">🤧 過敏/身體</div>
   <div class="sec-bd">
@@ -213,7 +210,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<!-- FIX 4: 睡眠干擾新增選項 -->
 <div class="section">
   <div class="sec-hd">😴 睡眠</div>
   <div class="sec-bd">
@@ -261,7 +257,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<!-- FIX 5: 身體數據排序改為 體重、體脂肪、骨骼肌、細胞內水、細胞外水、內臟脂肪 -->
 <div class="section">
   <div class="sec-hd">⚖️ 身體數據</div>
   <div class="sec-bd">
@@ -285,7 +280,6 @@ textarea{resize:none;height:65px;line-height:1.5}
   </div>
 </div>
 
-<!-- FIX 6: 猛健樂新增 0.84mg -->
 <div class="section">
   <div class="sec-hd">💉 猛健樂</div>
   <div class="sec-bd">
@@ -318,7 +312,6 @@ textarea{resize:none;height:65px;line-height:1.5}
     </div>
   </div>
 </div>
-
 
 <div class="section">
   <div class="sec-hd">🏋️ 運動</div>
@@ -389,7 +382,6 @@ const carbPlans={
   lut:{'硬舉':{t:'🔴 高碳',p:105,c:200,f:55,k:1675},'深蹲':{t:'🔴 高碳',p:105,c:200,f:55,k:1675},'上肢':{t:'🟡 中碳',p:105,c:155,f:65,k:1605},'休息':{t:'🟢 低碳',p:105,c:110,f:80,k:1540}}
 };
 let phaseKey='fol';
-// 歷史施打紀錄（硬編碼，不依賴 localStorage）
 const HIST_INJ=[
   {date:'2025-10-14',dose:2.5},{date:'2025-10-21',dose:2.5},{date:'2025-10-28',dose:2.5},
   {date:'2025-11-04',dose:2.5},{date:'2025-11-11',dose:2.5},
@@ -406,9 +398,12 @@ const HIST_INJ=[
   {date:'2026-05-09',dose:0.5},{date:'2026-05-12',dose:0.5},
   {date:'2026-05-16',dose:0.67},{date:'2026-05-30',dose:0.84},
 ];
-window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]');
 
-// FIX 2: LMP 自動記憶
+// ✅ FIX 1: 去除 _pkd 中與 HIST_INJ 重複的日期，避免雙重計算
+const _histDates=new Set(HIST_INJ.map(d=>d.date));
+window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]').filter(x=>!_histDates.has(x.date));
+localStorage.setItem('pkd',JSON.stringify(window._pkd));
+
 function saveLmp(val){if(val)localStorage.setItem('cbj_lmp',val);}
 function loadLmp(){return localStorage.getItem('cbj_lmp')||'';}
 
@@ -419,7 +414,6 @@ function init(){
   document.getElementById('rec-date').value=ydDate.toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
   document.getElementById('hdate').textContent=now.toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei',month:'long',day:'numeric',weekday:'short'});
 
-  // FIX 2: 自動帶入上次記錄的LMP
   const savedLmp=loadLmp();
   if(savedLmp){
     document.getElementById('lmp').value=savedLmp;
@@ -481,7 +475,6 @@ function setupWtPills(){
   });
 }
 
-// FIX 3: 過敏pills全改multi，移除用藥子選單
 function setupAlPills(){
   document.getElementById('al').querySelectorAll('.pill').forEach(b=>{
     b.addEventListener('click',function(){this.classList.toggle('active')});
@@ -563,7 +556,6 @@ function calcPK(){
   const rd=document.getElementById('rec-date')?.value||new Date().toISOString().split('T')[0];
   const today=new Date(rd);
   let c=0;
-  // 合併歷史紀錄 + 本機新填紀錄
   const allInj=[...HIST_INJ,...window._pkd];
   allInj.forEach(d=>{
     const injDate=new Date(d.date);
@@ -611,13 +603,16 @@ function doSubmit(){
   const mjActive=document.querySelector('#mj .pill.active');
   const dose=mjActive?.textContent||'';
   let doseNum=0;
-  if(dose&&dose!=='☁️ 無'){
+  if(dose&&dose.trim()!=='☁️ 無'){
     doseNum=parseFloat(dose.replace(/[^0-9.]/g,''));
     if(doseNum>0){
       const rd=document.getElementById('rec-date').value;
-      window._pkd.push({date:rd,dose:doseNum});
-      window._pkd=window._pkd.filter(x=>(new Date()-new Date(x.date))/86400000<60);
-      localStorage.setItem('pkd',JSON.stringify(window._pkd));
+      // 只在 HIST_INJ 沒有這個日期時才加入 _pkd
+      if(!_histDates.has(rd)){
+        window._pkd.push({date:rd,dose:doseNum});
+        window._pkd=window._pkd.filter(x=>(new Date()-new Date(x.date))/86400000<60);
+        localStorage.setItem('pkd',JSON.stringify(window._pkd));
+      }
     }
   }
   const rd=document.getElementById('rec-date').value;
@@ -700,9 +695,7 @@ function gcalCheckToken(){
   }
 }
 
-// FIX 1: 更新授權狀態UI（置頂banner + 飲食區同步）
 function applyGcalAuthed(){
-  // 頂部 banner
   const banner=document.getElementById('gcal-auth-banner');
   const label=document.getElementById('gcal-auth-label');
   const authBtn=document.getElementById('gcal-auth-btn');
@@ -734,7 +727,6 @@ async function gcalFetch(){
       document.getElementById('gcal-auth-btn').style.background='var(--red)';
       document.getElementById('gcal-fetch-btn').style.display='none';
       document.getElementById('gcal-fetch-status').textContent='';
-
       return;
     }
     const data=await res.json();
@@ -747,10 +739,11 @@ async function gcalFetch(){
     const title=dietEvent.summary||'';
     const desc=dietEvent.description||'';
     const full=title+' '+desc;
-    const kcalM=full.match(/(\d{3,4})\s*kcal/i)||full.match(/(\d{3,4})\s*大卡/);
-    const pM=full.match(/P[：:]\s*(\d+)\s*g/i);
-    const cM=full.match(/C[：:]\s*(\d+)\s*g/i);
-    const fM=full.match(/F[：:]\s*(\d+)\s*g/i);
+    // ✅ FIX 2: 擴充 regex，支援中文標籤（蛋白質/碳水/脂肪）與多種格式
+    const kcalM=full.match(/(\d{3,4})\s*kcal/i)||full.match(/(\d{3,4})\s*大卡/)||full.match(/熱量[：:\s]*(\d{3,4})/);
+    const pM=full.match(/蛋白質[：:\s]*(\d+(?:\.\d+)?)\s*g?/i)||full.match(/P[：:\s]+(\d+(?:\.\d+)?)\s*g/i)||full.match(/\bP(\d+)\s*g?/i);
+    const cM=full.match(/碳水(?:化合物)?[：:\s]*(\d+(?:\.\d+)?)\s*g?/i)||full.match(/C[：:\s]+(\d+(?:\.\d+)?)\s*g/i)||full.match(/\bC(\d+)\s*g?/i);
+    const fM=full.match(/脂肪[：:\s]*(\d+(?:\.\d+)?)\s*g?/i)||full.match(/F[：:\s]+(\d+(?:\.\d+)?)\s*g/i)||full.match(/\bF(\d+)\s*g?/i);
     gcalParsed={kcal:kcalM?kcalM[1]:null,p:pM?pM[1]:null,c:cM?cM[1]:null,f:fM?fM[1]:null,detail:desc||title};
     document.getElementById('gcal-event-title').textContent=title+(desc?('\n'+desc.substring(0,300)):'');
     document.getElementById('gcal-result').style.display='block';
@@ -1027,8 +1020,6 @@ function injectHistory(){
     <div class="tl-item"><div class="tl-date">2026/05/30</div><div class="tl-body"><span class="badge b-red">代謝</span><br>驗血完成，恢復施打猛健樂 0.84mg，注射後明顯疲勞感持續兩天</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">飲食</span><br>開始執行碳循環5.0（蛋白質下修至105g、高低碳落差100g）</div></div>
     <div class="tl-item"><div class="tl-date">2026/05/31</div><div class="tl-body"><span class="badge b-green">補充品</span><br>開始服用肌醇（Inositol）與 R-Lipoic Acid</div></div>
-
-
   </div>
 
   <div style="margin:10px 0 0;background:#fff;border-radius:14px;overflow:hidden">
@@ -1049,7 +1040,6 @@ function injectHistory(){
     <div style="background:var(--red);color:#FAEEE4;font-size:11px;font-weight:500;padding:7px 14px;letter-spacing:0.8px">碳循環 5.0｜2026/05/30 啟用</div>
     <div style="padding:13px">
       <div style="font-size:11px;color:var(--muted);margin-bottom:6px">TDEE 1,900 kcal・目標赤字 300–350 kcal・蛋白質固定 105g・碳水高低差距 100g・脂肪反向配置</div>
-
       <div style="font-size:11px;color:var(--red);font-weight:500;margin:10px 0 6px;letter-spacing:0.5px">平日版（濾泡期／排卵期）｜每週均 1,516 kcal</div>
       <div class="lab-row"><span class="ln">🔴 高碳日｜下肢訓練日（週二深蹲、週四硬舉）</span></div>
       <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
@@ -1066,7 +1056,6 @@ function injectHistory(){
       <div class="lab-row" style="padding-left:8px"><span class="ln">碳水</span><span class="lv">110g</span></div>
       <div class="lab-row" style="padding-left:8px"><span class="ln">脂肪</span><span class="lv">75g</span></div>
       <div class="lab-row" style="padding-left:8px"><span class="ln">熱量</span><span class="lv">1,475 kcal</span></div>
-
       <div style="font-size:11px;color:var(--red);font-weight:500;margin:14px 0 6px;letter-spacing:0.5px">黃體期版｜每週均 1,573 kcal</div>
       <div class="lab-row"><span class="ln">🔴 高碳日｜下肢訓練日</span></div>
       <div class="lab-row" style="padding-left:8px"><span class="ln">蛋白質</span><span class="lv">105g</span></div>
