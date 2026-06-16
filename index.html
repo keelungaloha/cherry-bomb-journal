@@ -669,13 +669,40 @@ function gcalCheckToken(){
   if(hash&&hash.includes('access_token')){
     const params=new URLSearchParams(hash.replace('#',''));
     gcalToken=params.get('access_token');
+    const expiresIn=parseInt(params.get('expires_in')||3600);
     window.history.replaceState(null,null,location.pathname);
     localStorage.setItem('gcal_token',gcalToken);
+    // 提前2分鐘標記過期，避免邊界問題
+    localStorage.setItem('gcal_token_expiry',String(Date.now()+(expiresIn-120)*1000));
     applyGcalAuthed();
+  } else if(hash&&hash.includes('error=')){
+    // 靜默授權失敗（例如用戶撤銷授權），清掉讓用戶手動重授權
+    window.history.replaceState(null,null,location.pathname);
+    localStorage.removeItem('gcal_token');
+    localStorage.removeItem('gcal_token_expiry');
   } else {
     const saved=localStorage.getItem('gcal_token');
-    if(saved){gcalToken=saved;applyGcalAuthed();}
+    const expiry=parseInt(localStorage.getItem('gcal_token_expiry')||'0');
+    if(saved&&Date.now()<expiry){
+      // token 還有效，直接用
+      gcalToken=saved;
+      applyGcalAuthed();
+    } else if(localStorage.getItem('gcal_token_expiry')){
+      // 曾經授權過但 token 過期，靜默刷新
+      gcalSilentReauth();
+    }
+    // 完全沒授權過：什麼都不做，等用戶按授權按鈕
   }
+}
+
+function gcalSilentReauth(){
+  const url='https://accounts.google.com/o/oauth2/v2/auth'
+    +'?client_id='+GCAL_CLIENT_ID
+    +'&redirect_uri='+encodeURIComponent(location.href.split('?')[0])
+    +'&response_type=token'
+    +'&scope='+encodeURIComponent(GCAL_SCOPE)
+    +'&prompt=none';
+  window.location.href=url;
 }
 
 function applyGcalAuthed(){
