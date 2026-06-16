@@ -711,9 +711,9 @@ async function gcalFetch(){
   if(!gcalToken){alert('請先授權 Google 帳號（頁面頂端）');return;}
   const recDate=document.getElementById('rec-date').value;
   if(!recDate){alert('請先設定紀錄日');return;}
-  const d=new Date(recDate);
-  const tMin=d.toISOString();
-  const tMax=new Date(d.getTime()+86400000).toISOString();
+  const d = new Date(recDate + 'T00:00:00');
+  const tMin = d.toISOString();
+  const tMax = new Date(d.getTime() + 86400000).toISOString();
   document.getElementById('gcal-fetch-status').textContent='抓取中...';
   try{
     const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+tMin+'&timeMax='+tMax+'&singleEvents=true&orderBy=startTime',{headers:{Authorization:'Bearer '+gcalToken}});
