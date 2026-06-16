@@ -249,6 +249,7 @@ textarea{resize:none;height:65px;line-height:1.5}
       <div class="pills" id="sun">
         <button class="pill">☀️ 充足（30分鐘以上）</button>
         <button class="pill">🌤️ 普通（10-30分鐘）</button>
+        <button class="pill">🪴 坐陽台30分吸收陽光</button>
         <button class="pill">⛅ 有出門短暫曬到</button>
         <button class="pill">☁️ 有出門但沒曬到</button>
         <button class="pill">🌙 完全室內</button>
@@ -348,25 +349,9 @@ textarea{resize:none;height:65px;line-height:1.5}
 </div>
 
 <div class="section">
-  <div class="sec-hd">🏷️ 特殊事件</div>
-  <div class="sec-bd">
-    <div class="field">
-      <label>今日標籤（可複選）</label>
-      <div class="event-tags">
-        <button class="etag">🩸 抽血日</button>
-        <button class="etag">🦴 量DXA日</button>
-        <button class="etag">📏 量腰臀圍日</button>
-        <button class="etag">💊 新補充品</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="section">
   <div class="sec-hd">📝 備註</div>
   <div class="sec-bd">
-    <div class="field"><label>心情 / 生活 / PR紀錄 🎉</label><textarea id="n-mood" placeholder="今天心情、爆食原因、破PR紀錄..."></textarea></div>
-    <div class="field"><label>身體備註 🫀</label><textarea id="n-body" placeholder="特殊症狀、補充品異常..."></textarea></div>
+    <div class="field"><label>備註 📝</label><textarea id="n-note" placeholder="心情、PR、特殊症狀、補充品異常..." style="height:100px"></textarea></div>
   </div>
 </div>
 
@@ -399,10 +384,20 @@ const HIST_INJ=[
   {date:'2026-05-16',dose:0.67},{date:'2026-05-30',dose:0.84},
 ];
 
-// ✅ FIX 1: 去除 _pkd 中與 HIST_INJ 重複的日期，避免雙重計算
+// ✅ FIX: 去除 _pkd 中與 HIST_INJ 重複的日期，避免雙重計算
 const _histDates=new Set(HIST_INJ.map(d=>d.date));
 window._pkd=JSON.parse(localStorage.getItem('pkd')||'[]').filter(x=>!_histDates.has(x.date));
 localStorage.setItem('pkd',JSON.stringify(window._pkd));
+window._sheetInj=[];
+
+// ✅ 合併所有注射來源（HIST_INJ < Sheet資料 < 本地session）
+function mergeInj(){
+  const map=new Map();
+  HIST_INJ.forEach(d=>map.set(d.date,d.dose));
+  (window._sheetInj||[]).forEach(d=>map.set(d.date,d.dose));
+  (window._pkd||[]).forEach(d=>map.set(d.date,d.dose));
+  return Array.from(map.entries()).map(function(e){return{date:e[0],dose:e[1]};});
+}
 
 function saveLmp(val){if(val)localStorage.setItem('cbj_lmp',val);}
 function loadLmp(){return localStorage.getItem('cbj_lmp')||'';}
@@ -424,7 +419,7 @@ function init(){
 
   const msUntilMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
   setTimeout(()=>location.reload(),msUntilMidnight);
-  setupPills();setupStars();setupEtags();setupAlPills();setupMjPills();setupWtPills();
+  setupPills();setupStars();setupMjPills();setupWtPills();
   document.getElementById('s-start').addEventListener('input',calcSleep);
   document.getElementById('s-end').addEventListener('input',calcSleep);
   document.getElementById('icw').addEventListener('input',calcEdema);
@@ -475,12 +470,6 @@ function setupWtPills(){
   });
 }
 
-function setupAlPills(){
-  document.getElementById('al').querySelectorAll('.pill').forEach(b=>{
-    b.addEventListener('click',function(){this.classList.toggle('active')});
-  });
-}
-
 function setupStars(){
   ['sq','bf','ws'].forEach(id=>{
     document.getElementById(id).querySelectorAll('.star').forEach((s,i)=>{
@@ -492,12 +481,6 @@ function setupStars(){
         if(h&&starHints[id])h.textContent=starHints[id][i+1]||'';
       });
     });
-  });
-}
-
-function setupEtags(){
-  document.querySelectorAll('.etag').forEach(b=>{
-    b.addEventListener('click',function(){this.classList.toggle('active')});
   });
 }
 
@@ -556,7 +539,7 @@ function calcPK(){
   const rd=document.getElementById('rec-date')?.value||new Date().toISOString().split('T')[0];
   const today=new Date(rd);
   let c=0;
-  const allInj=[...HIST_INJ,...window._pkd];
+  const allInj=mergeInj();
   allInj.forEach(d=>{
     const injDate=new Date(d.date);
     if(injDate>=today) return;
@@ -578,7 +561,7 @@ function calcPKToday(){
   const todayStr=now.toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
   const today=new Date(todayStr);
   let c=0;
-  const allInj=[...HIST_INJ,...window._pkd];
+  const allInj=mergeInj();
   allInj.forEach(d=>{
     const injDate=new Date(d.date);
     if(injDate>=today) return;
@@ -607,7 +590,6 @@ function doSubmit(){
     doseNum=parseFloat(dose.replace(/[^0-9.]/g,''));
     if(doseNum>0){
       const rd=document.getElementById('rec-date').value;
-      // 只在 HIST_INJ 沒有這個日期時才加入 _pkd
       if(!_histDates.has(rd)){
         window._pkd.push({date:rd,dose:doseNum});
         window._pkd=window._pkd.filter(x=>(new Date()-new Date(x.date))/86400000<60);
@@ -646,8 +628,8 @@ function doSubmit(){
     edemaRate:(function(){var v=document.getElementById('ed-v')?.textContent||'';var n=parseFloat(v);return isNaN(n)?'':n;}()),
     period:document.querySelector('#pe .pill.active')?.textContent||'',
     appetite:document.querySelector('#ap .pill.active')?.textContent||'',
-    moodNote:document.getElementById('n-mood').value||'',
-    bodyNote:document.getElementById('n-body').value||''
+    moodNote:document.getElementById('n-note').value||'',
+    bodyNote:''
   };
   const records=JSON.parse(localStorage.getItem('cbj_records')||'[]');
   const idx=records.findIndex(r=>r.date===rd);
@@ -705,6 +687,23 @@ function applyGcalAuthed(){
   authBtn.style.background='#2e7d52';
   document.getElementById('gcal-fetch-btn').style.display='inline-block';
   sheetsInit();
+  fetchSheetInjHistory();
+}
+
+// ✅ 動態從 Sheet 讀取打針紀錄，取代硬編碼的 HIST_INJ（Sheet 資料優先）
+async function fetchSheetInjHistory(){
+  if(!gcalToken) return;
+  try{
+    const res=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/A:X',{headers:{Authorization:'Bearer '+gcalToken}});
+    const data=await res.json();
+    if(data.error){console.log('fetchSheetInj error:',data.error.message);return;}
+    const rows=(data.values||[]).slice(1);
+    window._sheetInj=rows
+      .filter(function(r){return r[0]&&parseFloat(r[23]||0)>0;})
+      .map(function(r){return{date:r[0],dose:parseFloat(r[23])};});
+    console.log('📊 從 Sheet 讀取到 '+window._sheetInj.length+' 筆注射紀錄');
+    calcPK();
+  }catch(e){console.log('fetchSheetInjHistory error:',e.message);}
 }
 
 async function gcalFetch(){
@@ -731,15 +730,14 @@ async function gcalFetch(){
     }
     const data=await res.json();
     const events=data.items||[];
+    // ✅ 精準比對標題前綴：🍳今日飲食熱量:
     const dietEvent=events.find(function(e){
-      const t=(e.summary||'')+(e.description||'');
-      return /kcal|大卡|熱量|蛋白質|P:|C:|F:/.test(t);
+      return /^🍳今日飲食熱量[：:]/.test(e.summary||'');
     });
-    if(!dietEvent){document.getElementById('gcal-fetch-status').textContent='找不到飲食行程';return;}
+    if(!dietEvent){document.getElementById('gcal-fetch-status').textContent='找不到飲食行程（需以「🍳今日飲食熱量:」開頭）';return;}
     const title=dietEvent.summary||'';
     const desc=dietEvent.description||'';
     const full=title+' '+desc;
-    // ✅ FIX 2: 擴充 regex，支援中文標籤（蛋白質/碳水/脂肪）與多種格式
     const kcalM=full.match(/(\d{3,4})\s*kcal/i)||full.match(/(\d{3,4})\s*大卡/)||full.match(/熱量[：:\s]*(\d{3,4})/);
     const pM=full.match(/蛋白質[：:\s]*(\d+(?:\.\d+)?)\s*g?/i)||full.match(/P[：:\s]+(\d+(?:\.\d+)?)\s*g/i)||full.match(/\bP(\d+)\s*g?/i);
     const cM=full.match(/碳水(?:化合物)?[：:\s]*(\d+(?:\.\d+)?)\s*g?/i)||full.match(/C[：:\s]+(\d+(?:\.\d+)?)\s*g/i)||full.match(/\bC(\d+)\s*g?/i);
@@ -894,7 +892,7 @@ function renderCharts(){
     container.innerHTML=chartBlock('c-slhrs','睡眠時數 (hr)')+chartBlock('c-slq','睡眠品質 (1-5)')+chartBlock('c-sun','日曬');
     makeChart('c-slhrs','睡眠時數',data.map(r=>r.sleepHrs||null),labels,'#7c3aed',0,14,[{label:'建議8小時',val:8,color:'#2e7d52'}]);
     makeChart('c-slq','睡眠品質',data.map(r=>r.sleepQuality||null),labels,'#2563eb',0,5);
-    const sunMap={'☀️ 充足（30分鐘以上）':3,'🌤️ 普通（10-30分鐘）':2,'⛅ 短暫曬到':1,'☁️ 沒有日曬':0,'🌙 完全室內':0};
+    const sunMap={'☀️ 充足（30分鐘以上）':3,'🌤️ 普通（10-30分鐘）':2,'🪴 坐陽台30分吸收陽光':2,'⛅ 有出門短暫曬到':1,'☁️ 有出門但沒曬到':0,'🌙 完全室內':0};
     makeBarChart('c-sun','日曬',data.map(r=>sunMap[r.sun]||0),labels,'rgba(255,165,0,0.6)');
   }
   else if(currentCat==='diet'){
